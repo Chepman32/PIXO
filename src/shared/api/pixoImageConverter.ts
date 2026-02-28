@@ -1,4 +1,4 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeModules } from 'react-native';
 import RNFS from 'react-native-fs';
 import {
   BatchProgress,
@@ -66,13 +66,6 @@ export const PixoImageConverter = {
   ): Promise<NativeConversionResult> => {
     if (nativeModule?.convertImage) {
       return nativeModule.convertImage(sourcePath, targetFormat, options);
-    }
-
-    if (Platform.OS === 'ios') {
-      throw new AppError(
-        'native_module_missing',
-        'Native conversion module is unavailable on iOS',
-      );
     }
 
     return fallbackCopyConversion(sourcePath, targetFormat);

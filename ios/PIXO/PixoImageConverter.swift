@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 import ImageIO
 import UniformTypeIdentifiers
+import React
 
 @objc(PixoImageConverter)
 class PixoImageConverter: NSObject {
