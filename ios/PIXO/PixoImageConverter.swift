@@ -256,7 +256,7 @@ class PixoImageConverter: NSObject {
       return 0.8
     }
     let raw = number.doubleValue
-    if raw <= 1 {
+    if raw < 1 {
       return max(0.01, min(1, raw))
     }
     return max(0.01, min(1, raw / 100))

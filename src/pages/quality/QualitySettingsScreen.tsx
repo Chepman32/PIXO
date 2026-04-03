@@ -1,16 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   Image,
+  type LayoutChangeEvent,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { CaretDown, CaretUp } from 'phosphor-react-native';
+import { CaretDown } from 'phosphor-react-native';
 import { AppHeader } from '../../shared/ui/AppHeader';
 import { Screen } from '../../shared/ui/Screen';
 import { RootStackParamList } from '../../app/navigation/types';
@@ -39,6 +40,7 @@ const advancedItemStyles = StyleSheet.create({
 export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) => {
   const theme = useTheme();
   const { images, targetFormat, options } = route.params;
+  const scrollRef = useRef<ScrollView>(null);
 
   const [form, setForm] = useState<ConversionOptions>({
     quality: options?.quality ?? 80,
@@ -55,6 +57,10 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
 
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [estimatedSize, setEstimatedSize] = useState(0);
+  const [advancedContentHeight, setAdvancedContentHeight] = useState(0);
+  const [advancedHeaderY, setAdvancedHeaderY] = useState(0);
+  const accordionHeight = useRef(new Animated.Value(0)).current;
+  const accordionProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     let mounted = true;
@@ -82,11 +88,79 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
   );
 
   const delta = sourceSize > 0 ? ((estimatedSize - sourceSize) / sourceSize) * 100 : 0;
+  const chevronRotation = accordionProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+  const advancedPanelOpacity = accordionProgress.interpolate({
+    inputRange: [0, 0.55, 1],
+    outputRange: [0, 0.35, 1],
+  });
+  const advancedPanelTranslateY = accordionProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-12, 0],
+  });
+  const advancedPanelMarginTop = accordionProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -6],
+  });
+
+  const animateAccordion = (nextOpen: boolean, nextHeight = advancedContentHeight) => {
+    const velocity = nextOpen ? 2.4 : -2;
+
+    Animated.parallel([
+      Animated.spring(accordionProgress, {
+        toValue: nextOpen ? 1 : 0,
+        velocity,
+        tension: 170,
+        friction: 20,
+        useNativeDriver: false,
+      }),
+      Animated.spring(accordionHeight, {
+        toValue: nextOpen ? nextHeight : 0,
+        velocity,
+        tension: 180,
+        friction: 22,
+        useNativeDriver: false,
+      }),
+    ]).start();
+  };
+
+  const handleToggleAdvanced = () => {
+    const nextOpen = !advancedOpen;
+    setAdvancedOpen(nextOpen);
+    animateAccordion(nextOpen);
+    if (nextOpen) {
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({
+          animated: true,
+          y: Math.max(0, advancedHeaderY - 24),
+        });
+      }, 110);
+    }
+  };
+
+  const handleAdvancedLayout = (event: LayoutChangeEvent) => {
+    const nextHeight = Math.ceil(event.nativeEvent.layout.height);
+    if (!nextHeight || nextHeight === advancedContentHeight) {
+      return;
+    }
+
+    setAdvancedContentHeight(nextHeight);
+    if (advancedOpen) {
+      animateAccordion(true, nextHeight);
+    } else {
+      accordionHeight.setValue(0);
+    }
+  };
 
   return (
     <Screen>
       <AppHeader onBack={() => navigation.goBack()} title="Quality Settings" />
-      <ScrollView contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}> 
+      <ScrollView
+        contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}
+        ref={scrollRef}
+      > 
         <View style={[styles.previewCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
           <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary, marginBottom: 10 }]}>Before / After</Text>
           <View style={styles.previewRow}>
@@ -135,19 +209,32 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
         </View>
 
         <Pressable
-          onPress={() => setAdvancedOpen(prev => !prev)}
+          onLayout={event => setAdvancedHeaderY(event.nativeEvent.layout.y)}
+          onPress={handleToggleAdvanced}
           style={[styles.advancedHeader, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
         >
           <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>Advanced Options</Text>
-          {advancedOpen ? (
-            <CaretUp color={theme.colors.textSecondary} size={16} />
-          ) : (
+          <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
             <CaretDown color={theme.colors.textSecondary} size={16} />
-          )}
+          </Animated.View>
         </Pressable>
 
-        {advancedOpen ? (
-          <View style={[styles.advancedPanel, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
+        <Animated.View
+          pointerEvents={advancedOpen ? 'auto' : 'none'}
+          style={[
+            styles.advancedPanelWrap,
+            {
+              height: accordionHeight,
+              marginTop: advancedPanelMarginTop,
+              opacity: advancedPanelOpacity,
+              transform: [{ translateY: advancedPanelTranslateY }],
+            },
+          ]}
+        >
+          <View
+            onLayout={handleAdvancedLayout}
+            style={[styles.advancedPanel, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+          >
             <View style={advancedItemStyles.row}>
               <Text style={[advancedItemStyles.rowText, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}>Preserve EXIF Data</Text>
               <Switch
@@ -171,30 +258,8 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
                 value={Boolean(form.stripColorProfile)}
               />
             </View>
-            <View style={advancedItemStyles.row}>
-              <Text style={[advancedItemStyles.rowText, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}>Max Dimension (px)</Text>
-              <TextInput
-                keyboardType="number-pad"
-                onChangeText={value =>
-                  setForm(prev => ({
-                    ...prev,
-                    maxDimension: value ? Number(value) : undefined,
-                  }))
-                }
-                placeholder="None"
-                placeholderTextColor={theme.colors.textMuted}
-                style={[
-                  styles.dimensionInput,
-                  {
-                    borderColor: theme.colors.border,
-                    color: theme.colors.textPrimary,
-                  },
-                ]}
-                value={form.maxDimension ? String(form.maxDimension) : ''}
-              />
-            </View>
           </View>
-        ) : null}
+        </Animated.View>
 
         <View style={styles.presetButton}>
           <Button
@@ -273,20 +338,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 14,
   },
+  advancedPanelWrap: {
+    overflow: 'hidden',
+  },
   advancedPanel: {
     borderRadius: 14,
     borderWidth: StyleSheet.hairlineWidth,
-    marginTop: -6,
     paddingHorizontal: 14,
     paddingVertical: 8,
-  },
-  dimensionInput: {
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    minWidth: 76,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    textAlign: 'right',
   },
   presetButton: {
     marginTop: 4,
