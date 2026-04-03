@@ -19,9 +19,11 @@ import { ConversionHistoryCard } from '../../widgets/conversion-card/ConversionH
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { ImagePickerSheet } from '../../widgets/image-picker/ImagePickerSheet';
 import { ImageAsset, SupportedOutputFormat } from '../../types/models';
+import { getQuickActionLabel, useStrings } from '../../shared/lib/i18n';
 
 export const HomeScreen: React.FC = () => {
   const theme = useTheme();
+  const strings = useStrings();
   const navigation = useNavigation<any>();
   const history = useAppStore(state => state.history);
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -59,16 +61,16 @@ export const HomeScreen: React.FC = () => {
           >
             <PlusCircle color={theme.colors.primary} size={52} weight="duotone" />
             <Text style={[theme.typography.titleMedium, { color: theme.colors.textPrimary, marginTop: 8 }]}> 
-              Add Image
+              {strings.home.addImage}
             </Text>
             <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted, marginTop: 6 }]}> 
-              Tap to select or drag and drop
+              {strings.home.tapToSelect}
             </Text>
           </LinearGradient>
         </Pressable>
 
         <View style={styles.sectionHeader}>
-          <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>Quick Actions</Text>
+          <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.home.quickActions}</Text>
         </View>
 
         <ScrollView
@@ -101,16 +103,16 @@ export const HomeScreen: React.FC = () => {
                 <ArrowsLeftRight color={theme.colors.primary} size={18} />
               )}
               <Text style={[theme.typography.labelMedium, { color: theme.colors.textPrimary }]}> 
-                {action.label}
+                {getQuickActionLabel(action.id as Parameters<typeof getQuickActionLabel>[0])}
               </Text>
             </Pressable>
           ))}
         </ScrollView>
 
         <View style={styles.sectionHeaderRow}>
-          <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>Recent Conversions</Text>
+          <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.home.recentConversions}</Text>
           <Button
-            label="See All"
+            label={strings.home.seeAll}
             onPress={() => navigation.navigate('History')}
             size="small"
             variant="ghost"
@@ -129,8 +131,8 @@ export const HomeScreen: React.FC = () => {
           </View>
         ) : (
           <EmptyState
-            description="Your converted images will appear here"
-            title="No recent conversions"
+            description={strings.home.noRecentDescription}
+            title={strings.home.noRecentTitle}
           />
         )}
       </ScrollView>

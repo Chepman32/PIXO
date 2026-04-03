@@ -1,22 +1,37 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { getAppLocale, getStrings } from './i18n';
+import { AppLocalePreference } from '../../types/models';
 
 dayjs.extend(relativeTime);
 
-export const formatTime = (iso: string) => dayjs(iso).format('h:mm A');
+export const formatTime = (iso: string, localePreference: AppLocalePreference = 'system') =>
+  new Intl.DateTimeFormat(getAppLocale(localePreference), {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(iso));
 
-export const formatDateLabel = (iso: string) => {
+export const formatDateLabel = (iso: string, localePreference: AppLocalePreference = 'system') => {
   const date = dayjs(iso);
+  const strings = getStrings(localePreference);
+  const locale = getAppLocale(localePreference);
   if (date.isSame(dayjs(), 'day')) {
-    return 'Today';
+    return strings.common.today;
   }
   if (date.isSame(dayjs().subtract(1, 'day'), 'day')) {
-    return 'Yesterday';
+    return strings.common.yesterday;
   }
   if (date.isSame(dayjs(), 'year')) {
-    return date.format('MMMM D');
+    return new Intl.DateTimeFormat(locale, {
+      month: 'long',
+      day: 'numeric',
+    }).format(date.toDate());
   }
-  return date.format('MMM D, YYYY');
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(date.toDate());
 };
 
 export const groupByDateBucket = <T extends { createdAt: string }>(items: T[]) => {

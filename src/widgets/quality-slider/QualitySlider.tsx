@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useTheme } from '../../app/providers/ThemeProvider';
+import { useStrings } from '../../shared/lib/i18n';
 
 interface QualitySliderProps {
   value: number;
@@ -10,14 +11,15 @@ interface QualitySliderProps {
 
 export const QualitySlider: React.FC<QualitySliderProps> = ({ value, onChange }) => {
   const theme = useTheme();
+  const strings = useStrings();
 
   return (
     <View style={[styles.wrap, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
-      <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>Quality</Text>
+      <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>{strings.qualitySlider.title}</Text>
       <View style={styles.labels}>
-        <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>Low</Text>
-        <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>Medium</Text>
-        <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>High</Text>
+        <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>{strings.qualitySlider.low}</Text>
+        <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>{strings.qualitySlider.medium}</Text>
+        <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>{strings.qualitySlider.high}</Text>
       </View>
       <Slider
         maximumTrackTintColor={theme.colors.border}

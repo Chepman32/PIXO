@@ -19,6 +19,7 @@ import { useTheme } from '../../app/providers/ThemeProvider';
 import { Button } from '../../shared/ui/Button';
 import { getReadableSize } from '../../shared/lib/file';
 import { useToast } from '../../app/providers/ToastProvider';
+import { useStrings } from '../../shared/lib/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ConversionComplete'>;
 
@@ -35,6 +36,7 @@ const iconButtonStyles = StyleSheet.create({
 
 export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route }) => {
   const theme = useTheme();
+  const strings = useStrings();
   const { showToast } = useToast();
   const { results } = route.params;
   const first = results[0];
@@ -42,9 +44,9 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
   const saveAll = async () => {
     try {
       await Promise.all(results.map(item => CameraRoll.saveAsset(item.outputPath, { type: 'photo' })));
-      showToast({ title: 'Saved to Photos', tone: 'success' });
+      showToast({ title: strings.common.savedToPhotos, tone: 'success' });
     } catch {
-      showToast({ title: 'Save failed', tone: 'error' });
+      showToast({ title: strings.common.saveFailed, tone: 'error' });
     }
   };
 
@@ -57,17 +59,17 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
   };
 
   const more = () => {
-    Alert.alert('More Actions', 'Choose an action', [
+    Alert.alert(strings.complete.moreActionsTitle, strings.complete.chooseAction, [
       {
-        text: 'Convert Again',
+        text: strings.complete.convertAgain,
         onPress: () => navigation.navigate('MainTabs', { screen: 'Convert' } as never),
       },
       {
-        text: 'View Original',
+        text: strings.complete.viewOriginal,
         onPress: () => navigation.navigate('Preview', { result: first, compareUri: first.source.uri }),
       },
       {
-        text: 'Cancel',
+        text: strings.common.cancel,
         style: 'cancel',
       },
     ]);
@@ -75,14 +77,14 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
 
   return (
     <Screen>
-      <AppHeader title="Complete" />
+      <AppHeader title={strings.complete.title} />
       <ScrollView contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}> 
         <View style={styles.hero}>
           <CheckCircle color={theme.colors.success} size={88} weight="fill" />
           <Text style={[theme.typography.headlineSmall, { color: theme.colors.textPrimary, marginTop: 16 }]}> 
             {results.length > 1
-              ? `${results.length} Images Converted`
-              : 'Conversion Complete!'}
+              ? strings.complete.imagesConverted(results.length)
+              : strings.complete.conversionComplete}
           </Text>
         </View>
 
@@ -108,27 +110,27 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
             style={[iconButtonStyles.button, { backgroundColor: theme.colors.surfaceSecondary }]}
           >
             <ShareNetwork color={theme.colors.textPrimary} size={20} />
-            <Text style={[theme.typography.labelMedium, { color: theme.colors.textPrimary }]}>Share</Text>
+            <Text style={[theme.typography.labelMedium, { color: theme.colors.textPrimary }]}>{strings.complete.share}</Text>
           </Pressable>
           <Pressable
             onPress={saveAll}
             style={[iconButtonStyles.button, { backgroundColor: theme.colors.surfaceSecondary }]}
           >
             <DownloadSimple color={theme.colors.textPrimary} size={20} />
-            <Text style={[theme.typography.labelMedium, { color: theme.colors.textPrimary }]}>Save</Text>
+            <Text style={[theme.typography.labelMedium, { color: theme.colors.textPrimary }]}>{strings.complete.save}</Text>
           </Pressable>
           <Pressable
             onPress={more}
             style={[iconButtonStyles.button, { backgroundColor: theme.colors.surfaceSecondary }]}
           >
             <DotsThreeOutline color={theme.colors.textPrimary} size={20} />
-            <Text style={[theme.typography.labelMedium, { color: theme.colors.textPrimary }]}>More</Text>
+            <Text style={[theme.typography.labelMedium, { color: theme.colors.textPrimary }]}>{strings.complete.more}</Text>
           </Pressable>
         </View>
 
         <Button
           fullWidth
-          label="Convert Another"
+          label={strings.complete.convertAnother}
           leftIcon={<Plus color={theme.colors.primary} size={18} />}
           onPress={() => navigation.navigate('MainTabs', { screen: 'Convert' } as never)}
           variant="secondary"
@@ -137,7 +139,7 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
         <View style={{ marginTop: 8 }}>
           <Button
             fullWidth
-            label="Done"
+            label={strings.common.done}
             onPress={() => navigation.popToTop()}
           />
         </View>

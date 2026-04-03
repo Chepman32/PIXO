@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
+  Dimensions,
   Linking,
   Modal,
   Pressable,
@@ -12,6 +13,7 @@ import {
 import RNFS from 'react-native-fs';
 import { CaretRight, Check, X } from 'phosphor-react-native';
 import Slider from '@react-native-community/slider';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { Screen } from '../../shared/ui/Screen';
 import { useAppStore } from '../../app/providers/store/useAppStore';
@@ -19,6 +21,16 @@ import { FORMAT_META, SUPPORTED_OUTPUT_FORMATS } from '../../shared/config/forma
 import { Button } from '../../shared/ui/Button';
 import { getReadableSize } from '../../shared/lib/file';
 import { FS_CACHE, FS_OUTPUT } from '../../shared/config/filesystem';
+import {
+  getFormatDescription,
+  getLanguageSettingLabel,
+  getLocaleNativeName,
+  getSystemLanguageLabel,
+  SUPPORTED_APP_LOCALES,
+  useLocale,
+  useStrings,
+} from '../../shared/lib/i18n';
+import { AppLocalePreference } from '../../types/models';
 
 interface SelectModalProps {
   visible: boolean;
@@ -38,39 +50,53 @@ const SelectModal: React.FC<SelectModalProps> = ({
   onSelect,
 }) => {
   const theme = useTheme();
+  const strings = useStrings();
+  const insets = useSafeAreaInsets();
+  const maxSheetHeight = Dimensions.get('window').height - insets.top - 20;
 
   return (
     <Modal animationType="slide" transparent visible={visible}>
-      <View style={styles.modalBackdrop}>
-        <View style={[styles.modalCard, { backgroundColor: theme.colors.surface }]}> 
+      <View style={[styles.modalBackdrop, { paddingTop: insets.top + 12 }]}>
+        <View
+          style={[
+            styles.modalCard,
+            { backgroundColor: theme.colors.surface, paddingBottom: 24 + insets.bottom },
+            { maxHeight: maxSheetHeight },
+          ]}
+        > 
           <View style={styles.modalHeader}>
             <Text style={[theme.typography.titleMedium, { color: theme.colors.textPrimary }]}>{title}</Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <X color={theme.colors.textSecondary} size={18} />
             </Pressable>
           </View>
-          {options.map(option => (
-            <Pressable
-              key={option.id}
-              onPress={() => {
-                onSelect(option.id);
-                onClose();
-              }}
-              style={[styles.modalOption, { borderBottomColor: theme.colors.border }]}
-            >
-              <View style={styles.modalOptionText}>
-                <Text style={[theme.typography.bodyLarge, { color: theme.colors.textPrimary }]}>{option.label}</Text>
-                {option.description ? (
-                  <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}> 
-                    {option.description}
-                  </Text>
-                ) : null}
-              </View>
-              {selected === option.id ? <Check color={theme.colors.primary} size={18} /> : null}
-            </Pressable>
-          ))}
+          <ScrollView
+            contentContainerStyle={styles.modalOptionsContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {options.map(option => (
+              <Pressable
+                key={option.id}
+                onPress={() => {
+                  onSelect(option.id);
+                  onClose();
+                }}
+                style={[styles.modalOption, { borderBottomColor: theme.colors.border }]}
+              >
+                <View style={styles.modalOptionText}>
+                  <Text style={[theme.typography.bodyLarge, { color: theme.colors.textPrimary }]}>{option.label}</Text>
+                  {option.description ? (
+                    <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}> 
+                      {option.description}
+                    </Text>
+                  ) : null}
+                </View>
+                {selected === option.id ? <Check color={theme.colors.primary} size={18} /> : null}
+              </Pressable>
+            ))}
+          </ScrollView>
           <View style={{ marginTop: 12 }}>
-            <Button fullWidth label="Close" onPress={onClose} variant="ghost" />
+            <Button fullWidth label={strings.common.close} onPress={onClose} variant="ghost" />
           </View>
         </View>
       </View>
@@ -80,13 +106,19 @@ const SelectModal: React.FC<SelectModalProps> = ({
 
 export const SettingsScreen: React.FC = () => {
   const theme = useTheme();
+  const strings = useStrings();
+  const { locale, localePreference } = useLocale();
+  const insets = useSafeAreaInsets();
+  const maxSheetHeight = Dimensions.get('window').height - insets.top - 20;
   const settings = useAppStore(state => state.settings);
+  const currentLocalePreference = settings.locale ?? 'system';
   const history = useAppStore(state => state.history);
   const setSettings = useAppStore(state => state.setSettings);
   const clearHistory = useAppStore(state => state.clearHistory);
 
   const [cacheSize, setCacheSize] = useState(0);
   const [formatModalVisible, setFormatModalVisible] = useState(false);
+  const [localeModalVisible, setLocaleModalVisible] = useState(false);
   const [themeModalVisible, setThemeModalVisible] = useState(false);
   const [qualityModalVisible, setQualityModalVisible] = useState(false);
   const [qualityDraft, setQualityDraft] = useState(settings.defaultQuality);
@@ -171,41 +203,56 @@ export const SettingsScreen: React.FC = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}> 
-        <Text style={[theme.typography.headlineMedium, { color: theme.colors.textPrimary }]}>Settings</Text>
+        <Text style={[theme.typography.headlineMedium, { color: theme.colors.textPrimary }]}>{strings.settings.title}</Text>
 
-        <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>PREFERENCES</Text>
+        <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>{strings.settings.preferences}</Text>
         <View style={[styles.group, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
           {settingRow(
-            'Default Format',
+            getLanguageSettingLabel(localePreference),
+            currentLocalePreference === 'system'
+              ? getSystemLanguageLabel(localePreference)
+              : getLocaleNativeName(locale),
+            () => setLocaleModalVisible(true),
+          )}
+          {settingRow(
+            strings.settings.defaultFormat,
             FORMAT_META[settings.defaultFormat].label,
             () => setFormatModalVisible(true),
           )}
-          {settingRow('Default Quality', `${settings.defaultQuality}%`, () => setQualityModalVisible(true))}
-          {toggleRow('Preserve Metadata', settings.preserveMetadata, value =>
+          {settingRow(strings.settings.defaultQuality, `${settings.defaultQuality}%`, () => setQualityModalVisible(true))}
+          {toggleRow(strings.settings.preserveMetadata, settings.preserveMetadata, value =>
             setSettings({ preserveMetadata: value }),
           )}
-          {toggleRow('Auto-Save to Photos', settings.autoSaveToPhotos, value =>
+          {toggleRow(strings.settings.autoSaveToPhotos, settings.autoSaveToPhotos, value =>
             setSettings({ autoSaveToPhotos: value }),
           )}
         </View>
 
-        <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>APPEARANCE</Text>
+        <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>{strings.settings.appearance}</Text>
         <View style={[styles.group, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
-          {settingRow('Theme', settings.theme, () => setThemeModalVisible(true))}
+          {settingRow(
+            strings.settings.theme,
+            settings.theme === 'system'
+              ? strings.settings.system
+              : settings.theme === 'light'
+                ? strings.settings.light
+                : strings.settings.dark,
+            () => setThemeModalVisible(true),
+          )}
         </View>
 
-        <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>STORAGE</Text>
+        <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>{strings.settings.storage}</Text>
         <View style={[styles.group, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
-          {settingRow('Cache Size', getReadableSize(cacheSize), async () => {
+          {settingRow(strings.settings.cacheSize, getReadableSize(cacheSize), async () => {
             await RNFS.unlink(FS_CACHE).catch(() => undefined);
             await RNFS.mkdir(FS_CACHE).catch(() => undefined);
             setCacheSize(0);
           })}
-          {settingRow('Clear History', `${history.length} items`, () => {
-            Alert.alert('Clear History', 'Delete all conversion history?', [
-              { text: 'Cancel', style: 'cancel' },
+          {settingRow(strings.settings.clearHistory, strings.settings.historyItems(history.length), () => {
+            Alert.alert(strings.settings.clearHistoryTitle, strings.settings.clearHistoryBody, [
+              { text: strings.common.cancel, style: 'cancel' },
               {
-                text: 'Clear',
+                text: strings.common.clear,
                 style: 'destructive',
                 onPress: clearHistory,
               },
@@ -213,14 +260,33 @@ export const SettingsScreen: React.FC = () => {
           }, true)}
         </View>
 
-        <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>ABOUT</Text>
+        <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>{strings.settings.about}</Text>
         <View style={[styles.group, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
-          {settingRow('Version', '1.0.0')}
-          {settingRow('Rate PIXO', 'Open', () => Linking.openURL('https://apps.apple.com'))}
-          {settingRow('Privacy Policy', 'Open', () => Linking.openURL('https://example.com/privacy'))}
-          {settingRow('Terms of Service', 'Open', () => Linking.openURL('https://example.com/terms'))}
+          {settingRow(strings.settings.version, '1.0.0')}
+          {settingRow(strings.settings.ratePixo, strings.common.open, () => Linking.openURL('https://apps.apple.com'))}
+          {settingRow(strings.settings.privacyPolicy, strings.common.open, () => Linking.openURL('https://example.com/privacy'))}
+          {settingRow(strings.settings.termsOfService, strings.common.open, () => Linking.openURL('https://example.com/terms'))}
         </View>
       </ScrollView>
+
+      <SelectModal
+        onClose={() => setLocaleModalVisible(false)}
+        onSelect={id => setSettings({ locale: id as AppLocalePreference })}
+        options={[
+          {
+            id: 'system',
+            label: getSystemLanguageLabel(localePreference),
+            description: getLocaleNativeName(locale),
+          },
+          ...SUPPORTED_APP_LOCALES.map(item => ({
+            id: item,
+            label: getLocaleNativeName(item),
+          })),
+        ]}
+        selected={currentLocalePreference}
+        title={getLanguageSettingLabel(localePreference)}
+        visible={localeModalVisible}
+      />
 
       <SelectModal
         onClose={() => setFormatModalVisible(false)}
@@ -228,10 +294,10 @@ export const SettingsScreen: React.FC = () => {
         options={SUPPORTED_OUTPUT_FORMATS.map(format => ({
           id: format,
           label: FORMAT_META[format].label,
-          description: FORMAT_META[format].description,
+          description: getFormatDescription(format),
         }))}
         selected={settings.defaultFormat}
-        title="Default Format"
+        title={strings.settings.defaultFormat}
         visible={formatModalVisible}
       />
 
@@ -239,20 +305,26 @@ export const SettingsScreen: React.FC = () => {
         onClose={() => setThemeModalVisible(false)}
         onSelect={id => setSettings({ theme: id as 'system' | 'light' | 'dark' })}
         options={[
-          { id: 'system', label: 'System', description: 'Match device settings' },
-          { id: 'light', label: 'Light', description: 'Always light mode' },
-          { id: 'dark', label: 'Dark', description: 'Always dark mode' },
+          { id: 'system', label: strings.settings.system, description: strings.settings.matchDeviceSettings },
+          { id: 'light', label: strings.settings.light, description: strings.settings.alwaysLightMode },
+          { id: 'dark', label: strings.settings.dark, description: strings.settings.alwaysDarkMode },
         ]}
         selected={settings.theme}
-        title="Theme"
+        title={strings.settings.theme}
         visible={themeModalVisible}
       />
 
       <Modal animationType="slide" transparent visible={qualityModalVisible}>
-        <View style={styles.modalBackdrop}>
-          <View style={[styles.modalCard, { backgroundColor: theme.colors.surface }]}> 
+        <View style={[styles.modalBackdrop, { paddingTop: insets.top + 12 }]}>
+          <View
+            style={[
+              styles.modalCard,
+              { backgroundColor: theme.colors.surface, paddingBottom: 24 + insets.bottom },
+              { maxHeight: maxSheetHeight },
+            ]}
+          > 
             <View style={styles.modalHeader}>
-              <Text style={[theme.typography.titleMedium, { color: theme.colors.textPrimary }]}>Default Quality</Text>
+              <Text style={[theme.typography.titleMedium, { color: theme.colors.textPrimary }]}>{strings.settings.defaultQuality}</Text>
               <Pressable onPress={() => setQualityModalVisible(false)} style={styles.closeButton}>
                 <X color={theme.colors.textSecondary} size={18} />
               </Pressable>
@@ -273,7 +345,7 @@ export const SettingsScreen: React.FC = () => {
             <View style={styles.modalActions}>
               <Button
                 fullWidth
-                label="Save"
+                label={strings.common.save}
                 onPress={() => {
                   setSettings({ defaultQuality: qualityDraft });
                   setQualityModalVisible(false);
@@ -357,6 +429,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 14,
+  },
+  modalOptionsContent: {
+    flexGrow: 0,
   },
   modalOptionText: {
     flex: 1,

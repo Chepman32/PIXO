@@ -12,7 +12,10 @@ export const Screen: React.FC<ScreenProps> = ({ withKeyboardAvoiding, children }
   const theme = useTheme();
 
   const content = (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: theme.colors.background }]}> 
+    <SafeAreaView
+      edges={['top', 'bottom']}
+      style={[styles.safeArea, { backgroundColor: theme.colors.background }]}
+    >
       <View style={styles.content}>{children}</View>
     </SafeAreaView>
   );

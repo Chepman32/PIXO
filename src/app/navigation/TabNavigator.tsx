@@ -13,11 +13,13 @@ import { ConvertScreen } from '../../pages/convert/ConvertScreen';
 import { HistoryScreen } from '../../pages/history/HistoryScreen';
 import { SettingsScreen } from '../../pages/settings/SettingsScreen';
 import { useTheme } from '../providers/ThemeProvider';
+import { useStrings } from '../../shared/lib/i18n';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export const TabNavigator: React.FC = () => {
   const theme = useTheme();
+  const strings = useStrings();
 
   return (
     <Tab.Navigator
@@ -49,10 +51,10 @@ export const TabNavigator: React.FC = () => {
         },
       })}
     >
-      <Tab.Screen component={HomeScreen} name="Home" />
-      <Tab.Screen component={ConvertScreen} name="Convert" />
-      <Tab.Screen component={HistoryScreen} name="History" />
-      <Tab.Screen component={SettingsScreen} name="Settings" />
+      <Tab.Screen component={HomeScreen} name="Home" options={{ tabBarLabel: strings.tabs.home }} />
+      <Tab.Screen component={ConvertScreen} name="Convert" options={{ tabBarLabel: strings.tabs.convert }} />
+      <Tab.Screen component={HistoryScreen} name="History" options={{ tabBarLabel: strings.tabs.history }} />
+      <Tab.Screen component={SettingsScreen} name="Settings" options={{ tabBarLabel: strings.tabs.settings }} />
     </Tab.Navigator>
   );
 };

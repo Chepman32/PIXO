@@ -37,6 +37,7 @@ const defaultSettings: AppSettings = {
   defaultQuality: 80,
   preserveMetadata: true,
   autoSaveToPhotos: false,
+  locale: 'system',
   theme: 'system',
   appIcon: 'default',
   reduceMotion: false,

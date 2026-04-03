@@ -17,6 +17,7 @@ import { ConversionHistoryCard } from '../../widgets/conversion-card/ConversionH
 import { formatDateLabel } from '../../shared/lib/date';
 import { HistoryItem } from '../../types/models';
 import { Button } from '../../shared/ui/Button';
+import { useLocale, useStrings } from '../../shared/lib/i18n';
 
 type TimeFilter = 'all' | 'today' | 'week' | 'month';
 
@@ -33,6 +34,8 @@ const FILTERS: Array<{ id: TimeFilter; label: string }> = [
 
 export const HistoryScreen: React.FC = () => {
   const theme = useTheme();
+  const strings = useStrings();
+  const { localePreference } = useLocale();
   const navigation = useNavigation<any>();
   const history = useAppStore(state => state.history);
   const removeHistoryItem = useAppStore(state => state.removeHistoryItem);
@@ -74,7 +77,7 @@ export const HistoryScreen: React.FC = () => {
   const rows = useMemo<HistoryRow[]>(() => {
     const groups = new Map<string, HistoryItem[]>();
     filtered.forEach(item => {
-      const key = formatDateLabel(item.createdAt);
+      const key = formatDateLabel(item.createdAt, localePreference);
       const existing = groups.get(key) ?? [];
       existing.push(item);
       groups.set(key, existing);
@@ -87,7 +90,7 @@ export const HistoryScreen: React.FC = () => {
     });
 
     return result;
-  }, [filtered]);
+  }, [filtered, localePreference]);
 
   const toggleSelection = (id: string) => {
     setSelectedIds(prev =>
@@ -104,10 +107,10 @@ export const HistoryScreen: React.FC = () => {
   return (
     <Screen>
       <View style={[styles.header, { borderBottomColor: theme.colors.border }]}> 
-        <Text style={[theme.typography.headlineMedium, { color: theme.colors.textPrimary }]}>History</Text>
+        <Text style={[theme.typography.headlineMedium, { color: theme.colors.textPrimary }]}>{strings.history.title}</Text>
         <Pressable onPress={() => setEditMode(prev => !prev)}>
           <Text style={[theme.typography.labelLarge, { color: theme.colors.primary }]}> 
-            {editMode ? 'Done' : 'Edit'}
+            {editMode ? strings.common.done : strings.history.edit}
           </Text>
         </Pressable>
       </View>
@@ -117,7 +120,7 @@ export const HistoryScreen: React.FC = () => {
           <MagnifyingGlass color={theme.colors.textMuted} size={18} />
           <TextInput
             onChangeText={setQuery}
-            placeholder="Search conversions..."
+            placeholder={strings.history.searchPlaceholder}
             placeholderTextColor={theme.colors.textMuted}
             style={[styles.input, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}
             value={query}
@@ -143,7 +146,7 @@ export const HistoryScreen: React.FC = () => {
                 },
               ]}
             >
-              {item.label}
+              {strings.history.filters[item.id]}
             </Text>
           </Pressable>
         ))}
@@ -190,10 +193,10 @@ export const HistoryScreen: React.FC = () => {
         />
       ) : (
         <EmptyState
-          actionLabel="Convert an Image"
-          description="Your conversion history will appear here. Start by converting your first image."
+          actionLabel={strings.history.convertAnImage}
+          description={strings.history.noConversionsDescription}
           onAction={() => navigation.navigate('Convert')}
-          title="No Conversions Yet"
+          title={strings.history.noConversionsTitle}
         />
       )}
 
@@ -202,7 +205,7 @@ export const HistoryScreen: React.FC = () => {
           <Button
             disabled={selectedIds.length === 0}
             fullWidth
-            label={`Delete Selected (${selectedIds.length})`}
+            label={strings.history.deleteSelected(selectedIds.length)}
             onPress={deleteSelected}
             variant="destructive"
           />

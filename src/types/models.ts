@@ -10,6 +10,21 @@ export type ImageFormat =
 
 export type SupportedInputFormat = Exclude<ImageFormat, 'pdf'>;
 export type SupportedOutputFormat = Exclude<ImageFormat, 'gif' | 'tiff'>;
+export type AppLocale =
+  | 'en'
+  | 'zh-Hans'
+  | 'ja'
+  | 'ko'
+  | 'de'
+  | 'fr'
+  | 'es-MX'
+  | 'pt-BR'
+  | 'ar'
+  | 'ru'
+  | 'it'
+  | 'hi'
+  | 'fil';
+export type AppLocalePreference = 'system' | AppLocale;
 
 export interface ImageAsset {
   id: string;
@@ -87,6 +102,7 @@ export interface AppSettings {
   defaultQuality: number;
   preserveMetadata: boolean;
   autoSaveToPhotos: boolean;
+  locale: AppLocalePreference;
   theme: 'system' | 'light' | 'dark';
   appIcon: 'default' | 'dark' | 'minimal';
   reduceMotion: boolean;

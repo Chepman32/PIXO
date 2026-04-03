@@ -4,6 +4,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { RootStackParamList } from '../../app/navigation/types';
+import { useStrings } from '../../shared/lib/i18n';
 
 const SCREEN = Dimensions.get('window');
 
@@ -21,6 +22,7 @@ const LOGO_COORDS = [
 
 export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
+  const strings = useStrings();
   const textOpacity = useRef(new Animated.Value(0)).current;
   const logoScale = useRef(new Animated.Value(0.75)).current;
 
@@ -91,7 +93,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
         ]}
       >
         <Text style={styles.wordmark}>PIXO</Text>
-        <Text style={styles.tagline}>Image Converter</Text>
+        <Text style={styles.tagline}>{strings.splash.tagline}</Text>
       </Animated.View>
     </LinearGradient>
   );

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ArrowLeft, GearSix, Info } from 'phosphor-react-native';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { haptic } from '../lib/haptics';
+import { useStrings } from '../lib/i18n';
 
 interface AppHeaderProps {
   title: string;
@@ -20,6 +21,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   rightSlot,
 }) => {
   const theme = useTheme();
+  const strings = useStrings();
 
   const renderRight = () => {
     if (rightSlot) {
@@ -29,7 +31,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     if (onSettings) {
       return (
         <Pressable
-          accessibilityLabel="Open settings"
+          accessibilityLabel={strings.accessibility.openSettings}
           accessibilityRole="button"
           hitSlop={10}
           onPress={() => {
@@ -46,7 +48,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     if (onInfo) {
       return (
         <Pressable
-          accessibilityLabel="Open format info"
+          accessibilityLabel={strings.accessibility.openFormatInfo}
           accessibilityRole="button"
           hitSlop={10}
           onPress={() => {
@@ -67,7 +69,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     <View style={[styles.container, { borderBottomColor: theme.colors.border }]}> 
       {onBack ? (
         <Pressable
-          accessibilityLabel="Go back"
+          accessibilityLabel={strings.accessibility.goBack}
           accessibilityRole="button"
           hitSlop={10}
           onPress={() => {

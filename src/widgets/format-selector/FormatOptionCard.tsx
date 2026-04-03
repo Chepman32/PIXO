@@ -5,6 +5,7 @@ import { useTheme } from '../../app/providers/ThemeProvider';
 import { FORMAT_META } from '../../shared/config/formats';
 import { SupportedOutputFormat } from '../../types/models';
 import { FormatBadge } from '../../shared/ui/FormatBadge';
+import { getFormatDescription } from '../../shared/lib/i18n';
 
 interface FormatOptionCardProps {
   format: SupportedOutputFormat;
@@ -40,7 +41,9 @@ export const FormatOptionCard: React.FC<FormatOptionCardProps> = ({
       <FormatBadge format={format} size="lg" />
       <View style={styles.body}>
         <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>{meta.label}</Text>
-        <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>{meta.description}</Text>
+        <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>
+          {getFormatDescription(format)}
+        </Text>
       </View>
       <View style={styles.trailing}>
         {estimatedSize ? (

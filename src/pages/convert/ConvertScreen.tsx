@@ -9,9 +9,11 @@ import { Button } from '../../shared/ui/Button';
 import { ImagePickerSheet } from '../../widgets/image-picker/ImagePickerSheet';
 import { ImageAsset, SupportedOutputFormat } from '../../types/models';
 import { getReadableSize } from '../../shared/lib/file';
+import { useStrings } from '../../shared/lib/i18n';
 
 export const ConvertScreen: React.FC = () => {
   const theme = useTheme();
+  const strings = useStrings();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -31,7 +33,7 @@ export const ConvertScreen: React.FC = () => {
 
   return (
     <Screen>
-      <AppHeader title="Convert" />
+      <AppHeader title={strings.convert.title} />
       <ScrollView contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}> 
         {assets.length ? (
           <>
@@ -40,10 +42,10 @@ export const ConvertScreen: React.FC = () => {
                 <Images color={theme.colors.primary} size={24} />
                 <View style={styles.summaryTextWrap}>
                   <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}> 
-                    {assets.length} image{assets.length > 1 ? 's' : ''} selected
+                    {strings.convert.imagesSelected(assets.length)}
                   </Text>
                   <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}> 
-                    Total size: {getReadableSize(totalSize)}
+                    {strings.convert.totalSize(getReadableSize(totalSize))}
                   </Text>
                 </View>
               </View>
@@ -56,7 +58,7 @@ export const ConvertScreen: React.FC = () => {
 
             <Button
               fullWidth
-              label="Select Format"
+              label={strings.convert.selectFormat}
               onPress={() =>
                 navigation.navigate('FormatSelection', {
                   images: assets,
@@ -67,19 +69,19 @@ export const ConvertScreen: React.FC = () => {
             <View style={styles.gap} />
             <Button
               fullWidth
-              label="Add More Images"
+              label={strings.convert.addMoreImages}
               onPress={() => setPickerVisible(true)}
               variant="secondary"
             />
           </>
         ) : (
           <View style={styles.emptyWrap}>
-            <Text style={[theme.typography.titleLarge, { color: theme.colors.textPrimary }]}>No images selected</Text>
+            <Text style={[theme.typography.titleLarge, { color: theme.colors.textPrimary }]}>{strings.convert.noImagesTitle}</Text>
             <Text style={[theme.typography.bodyMedium, { color: theme.colors.textSecondary, marginTop: 6 }]}> 
-              Add images from library, camera, or files to start conversion.
+              {strings.convert.noImagesDescription}
             </Text>
             <View style={styles.emptyAction}>
-              <Button label="Add Images" onPress={() => setPickerVisible(true)} />
+              <Button label={strings.convert.addImages} onPress={() => setPickerVisible(true)} />
             </View>
           </View>
         )}

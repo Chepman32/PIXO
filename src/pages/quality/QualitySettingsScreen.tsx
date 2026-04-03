@@ -21,6 +21,7 @@ import { Button } from '../../shared/ui/Button';
 import { PixoImageConverter } from '../../shared/api/pixoImageConverter';
 import { getReadableSize } from '../../shared/lib/file';
 import { ConversionOptions } from '../../types/models';
+import { useStrings } from '../../shared/lib/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'QualitySettings'>;
 
@@ -39,6 +40,7 @@ const advancedItemStyles = StyleSheet.create({
 
 export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) => {
   const theme = useTheme();
+  const strings = useStrings();
   const { images, targetFormat, options } = route.params;
   const scrollRef = useRef<ScrollView>(null);
 
@@ -156,22 +158,22 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
 
   return (
     <Screen>
-      <AppHeader onBack={() => navigation.goBack()} title="Quality Settings" />
+      <AppHeader onBack={() => navigation.goBack()} title={strings.quality.title} />
       <ScrollView
         contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}
         ref={scrollRef}
       > 
         <View style={[styles.previewCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
-          <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary, marginBottom: 10 }]}>Before / After</Text>
+          <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary, marginBottom: 10 }]}>{strings.quality.beforeAfter}</Text>
           <View style={styles.previewRow}>
             <View style={styles.previewCell}>
               <Image source={{ uri: images[0].uri }} style={styles.previewImage} />
-              <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>Original</Text>
+              <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>{strings.common.original}</Text>
               <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>{getReadableSize(sourceSize)}</Text>
             </View>
             <View style={styles.previewCell}>
               <Image source={{ uri: images[0].uri }} style={styles.previewImage} />
-              <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>Preview</Text>
+              <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}>{strings.common.preview}</Text>
               <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>{getReadableSize(estimatedSize)}</Text>
             </View>
           </View>
@@ -183,7 +185,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
         />
 
         <View style={[styles.estimateCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
-          <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>Output Size Estimate</Text>
+          <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>{strings.quality.outputSizeEstimate}</Text>
           <View style={[styles.progressTrack, { backgroundColor: theme.colors.border }]}> 
             <View
               style={[
@@ -196,7 +198,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
             />
           </View>
           <Text style={[theme.typography.bodyMedium, { color: theme.colors.textSecondary }]}> 
-            {getReadableSize(estimatedSize)} {delta <= 0 ? '(smaller)' : '(larger)'}
+            {strings.quality.estimatedSizeLine(getReadableSize(estimatedSize), delta <= 0)}
           </Text>
           <Text
             style={[
@@ -204,7 +206,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
               { color: delta <= 0 ? theme.colors.success : theme.colors.warning, marginTop: 2 },
             ]}
           >
-            {delta <= 0 ? '↓' : '↑'} {Math.abs(delta).toFixed(0)}% {delta <= 0 ? 'smaller' : 'larger'} than original
+            {strings.quality.deltaLine(delta, delta <= 0)}
           </Text>
         </View>
 
@@ -213,7 +215,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
           onPress={handleToggleAdvanced}
           style={[styles.advancedHeader, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
         >
-          <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>Advanced Options</Text>
+          <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>{strings.quality.advancedOptions}</Text>
           <Animated.View style={{ transform: [{ rotate: chevronRotation }] }}>
             <CaretDown color={theme.colors.textSecondary} size={16} />
           </Animated.View>
@@ -236,7 +238,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
             style={[styles.advancedPanel, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
           >
             <View style={advancedItemStyles.row}>
-              <Text style={[advancedItemStyles.rowText, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}>Preserve EXIF Data</Text>
+              <Text style={[advancedItemStyles.rowText, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}>{strings.quality.preserveExif}</Text>
               <Switch
                 onValueChange={value => setForm(prev => ({ ...prev, preserveMetadata: value }))}
                 value={form.preserveMetadata}
@@ -244,7 +246,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
             </View>
             {targetFormat === 'jpg' ? (
               <View style={advancedItemStyles.row}>
-                <Text style={[advancedItemStyles.rowText, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}>Progressive Loading</Text>
+                <Text style={[advancedItemStyles.rowText, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}>{strings.quality.progressiveLoading}</Text>
                 <Switch
                   onValueChange={value => setForm(prev => ({ ...prev, progressive: value }))}
                   value={Boolean(form.progressive)}
@@ -252,7 +254,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
               </View>
             ) : null}
             <View style={advancedItemStyles.row}>
-              <Text style={[advancedItemStyles.rowText, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}>Strip Color Profile</Text>
+              <Text style={[advancedItemStyles.rowText, theme.typography.bodyMedium, { color: theme.colors.textPrimary }]}>{strings.quality.stripColorProfile}</Text>
               <Switch
                 onValueChange={value => setForm(prev => ({ ...prev, stripColorProfile: value }))}
                 value={Boolean(form.stripColorProfile)}
@@ -264,7 +266,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
         <View style={styles.presetButton}>
           <Button
             fullWidth
-            label="Save as Preset"
+            label={strings.quality.saveAsPreset}
             onPress={() => {
               // Preset creation will be expanded in a dedicated management flow.
             }}
@@ -276,7 +278,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
       <View style={[styles.footer, { borderTopColor: theme.colors.border, backgroundColor: theme.colors.background }]}> 
         <Button
           fullWidth
-          label="Convert Now"
+          label={strings.quality.convertNow}
           onPress={() =>
             navigation.navigate('ConversionProgress', {
               images,

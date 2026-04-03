@@ -17,11 +17,13 @@ import { RootStackParamList } from '../../app/navigation/types';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { getReadableSize } from '../../shared/lib/file';
 import { useToast } from '../../app/providers/ToastProvider';
+import { useStrings } from '../../shared/lib/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Preview'>;
 
 export const PreviewScreen: React.FC<Props> = ({ navigation, route }) => {
   const theme = useTheme();
+  const strings = useStrings();
   const { showToast } = useToast();
   const { result, compareUri } = route.params;
   const [mode, setMode] = useState<'original' | 'converted' | 'side'>('side');
@@ -36,9 +38,9 @@ export const PreviewScreen: React.FC<Props> = ({ navigation, route }) => {
   const onSave = async () => {
     try {
       await CameraRoll.saveAsset(result.outputPath, { type: 'photo' });
-      showToast({ title: 'Saved to Photos', tone: 'success' });
+      showToast({ title: strings.common.savedToPhotos, tone: 'success' });
     } catch {
-      showToast({ title: 'Save failed', tone: 'error' });
+      showToast({ title: strings.common.saveFailed, tone: 'error' });
     }
   };
 
@@ -59,16 +61,16 @@ export const PreviewScreen: React.FC<Props> = ({ navigation, route }) => {
             </Pressable>
           </View>
         }
-        title="Preview"
+        title={strings.preview.title}
       />
 
       <View style={[styles.content, { backgroundColor: theme.colors.background }]}> 
         {compareUri ? (
           <View style={styles.modeRow}>
             {[
-              { id: 'original', label: 'Original' },
-              { id: 'converted', label: 'Converted' },
-              { id: 'side', label: 'Side by Side' },
+              { id: 'original', label: strings.common.original },
+              { id: 'converted', label: strings.common.converted },
+              { id: 'side', label: strings.common.sideBySide },
             ].map(item => (
               <Pressable
                 key={item.id}

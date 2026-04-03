@@ -8,12 +8,14 @@ import {
   View,
 } from 'react-native';
 import { Camera, Images, X } from 'phosphor-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { pickImageFromCamera, pickImagesFromFiles, pickImagesFromLibrary } from '../../features/select-image/pickImages';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { ImageAsset } from '../../types/models';
 import { Button } from '../../shared/ui/Button';
 import { haptic } from '../../shared/lib/haptics';
 import { getErrorMessage } from '../../shared/lib/errors';
+import { useStrings } from '../../shared/lib/i18n';
 
 interface ImagePickerSheetProps {
   visible: boolean;
@@ -33,6 +35,8 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
   onError,
 }) => {
   const theme = useTheme();
+  const strings = useStrings();
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState<'library' | 'camera' | 'files' | null>(null);
 
   const runAction = async (action: 'library' | 'camera' | 'files') => {
@@ -63,24 +67,24 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
     () => [
       {
         id: 'library',
-        title: 'Photo Library',
-        subtitle: 'Select one or more photos',
+        title: strings.imagePicker.photoLibrary,
+        subtitle: strings.imagePicker.photoLibrarySubtitle,
         icon: <Images color={theme.colors.primary} size={22} />,
       },
       {
         id: 'camera',
-        title: 'Camera',
-        subtitle: 'Take a new photo',
+        title: strings.imagePicker.camera,
+        subtitle: strings.imagePicker.cameraSubtitle,
         icon: <Camera color={theme.colors.primary} size={22} />,
       },
       {
         id: 'files',
-        title: 'Files',
-        subtitle: 'Import from local files',
+        title: strings.imagePicker.files,
+        subtitle: strings.imagePicker.filesSubtitle,
         icon: <Images color={theme.colors.primary} size={22} weight="duotone" />,
       },
     ],
-    [theme.colors.primary],
+    [strings, theme.colors.primary],
   );
 
   return (
@@ -90,7 +94,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
       transparent
       visible={visible}
     >
-      <View style={styles.backdrop}>
+      <View style={[styles.backdrop, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={onClose} style={[styles.scrim, { backgroundColor: theme.colors.overlay }]} />
         <View
           style={[
@@ -98,6 +102,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
             {
               backgroundColor: theme.colors.surface,
               borderColor: theme.colors.border,
+              paddingBottom: 16 + insets.bottom,
             },
           ]}
         >
@@ -106,7 +111,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
           </View>
 
           <View style={styles.header}>
-            <Text style={[theme.typography.headlineSmall, { color: theme.colors.textPrimary }]}>Select Images</Text>
+            <Text style={[theme.typography.headlineSmall, { color: theme.colors.textPrimary }]}>{strings.imagePicker.title}</Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <X color={theme.colors.textSecondary} size={22} />
             </Pressable>
@@ -135,7 +140,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
                       {item.title}
                     </Text>
                     <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}> 
-                      {isLoading ? 'Loading...' : item.subtitle}
+                      {isLoading ? strings.common.loading : item.subtitle}
                     </Text>
                   </View>
                 </Pressable>
@@ -144,7 +149,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
           />
 
           <View style={styles.footer}>
-            <Button label="Close" onPress={onClose} variant="ghost" fullWidth />
+            <Button label={strings.common.close} onPress={onClose} variant="ghost" fullWidth />
           </View>
         </View>
       </View>

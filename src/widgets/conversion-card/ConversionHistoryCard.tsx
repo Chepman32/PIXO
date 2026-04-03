@@ -6,6 +6,7 @@ import { getReadableSize } from '../../shared/lib/file';
 import { formatTime } from '../../shared/lib/date';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { FormatBadge } from '../../shared/ui/FormatBadge';
+import { useLocale } from '../../shared/lib/i18n';
 
 interface ConversionHistoryCardProps {
   item: HistoryItem;
@@ -14,6 +15,7 @@ interface ConversionHistoryCardProps {
 
 export const ConversionHistoryCard: React.FC<ConversionHistoryCardProps> = ({ item, onPress }) => {
   const theme = useTheme();
+  const { localePreference } = useLocale();
 
   return (
     <Pressable
@@ -44,7 +46,7 @@ export const ConversionHistoryCard: React.FC<ConversionHistoryCardProps> = ({ it
         </View>
         <View style={styles.row}>
           <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted }]}>
-            {formatTime(item.createdAt)}
+            {formatTime(item.createdAt, localePreference)}
           </Text>
           <View style={styles.deltaWrap}>
             <ArrowDown color={theme.colors.success} size={12} />

@@ -11,6 +11,7 @@ import { Button } from '../../shared/ui/Button';
 import { PixoImageConverter } from '../../shared/api/pixoImageConverter';
 import { getReadableSize } from '../../shared/lib/file';
 import { SupportedOutputFormat } from '../../types/models';
+import { useStrings } from '../../shared/lib/i18n';
 
 const defaultOptions = {
   quality: 80,
@@ -23,6 +24,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'FormatSelection'>;
 
 export const FormatSelectionScreen: React.FC<Props> = ({ navigation, route }) => {
   const theme = useTheme();
+  const strings = useStrings();
   const { images, initialTarget, options } = route.params;
   const first = images[0];
 
@@ -70,29 +72,29 @@ export const FormatSelectionScreen: React.FC<Props> = ({ navigation, route }) =>
         onBack={() => navigation.goBack()}
         onInfo={() =>
           Alert.alert(
-            'Format Information',
-            'Choose a target format based on compatibility and size. JPG is best for photos, PNG for transparency, WebP for web optimization, HEIC for iOS storage efficiency.',
+            strings.formatSelection.infoTitle,
+            strings.formatSelection.infoBody,
           )
         }
-        title="Select Format"
+        title={strings.formatSelection.title}
       />
       <ScrollView contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}> 
-        <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>Converting from:</Text>
+        <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.formatSelection.convertingFrom}</Text>
         <View style={[styles.sourceCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
           <Image source={{ uri: first.uri }} style={styles.sourceThumb} />
           <View style={styles.sourceTextWrap}>
             <Text numberOfLines={1} style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}> 
-              {images.length === 1 ? first.fileName : `${images.length} images selected`}
+              {images.length === 1 ? first.fileName : strings.formatSelection.imagesSelected(images.length)}
             </Text>
             <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary }]}> 
               {images.length === 1
                 ? `${first.width} × ${first.height} • ${FORMAT_META[first.format].label}`
-                : 'Mixed formats'}
+                : strings.formatSelection.mixedFormats}
             </Text>
           </View>
         </View>
 
-        <Text style={[styles.section, theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>Select output format:</Text>
+        <Text style={[styles.section, theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.formatSelection.selectOutputFormat}</Text>
         {availableFormats.map(format => (
           <FormatOptionCard
             disabled={images.length === 1 && format === first.format}
@@ -109,7 +111,7 @@ export const FormatSelectionScreen: React.FC<Props> = ({ navigation, route }) =>
         <Button
           disabled={!selected}
           fullWidth
-          label="Continue"
+          label={strings.common.continue}
           onPress={() => {
             if (!selected) {
               return;

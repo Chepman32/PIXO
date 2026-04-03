@@ -19,18 +19,25 @@ import { useAppStore } from '../../app/providers/store/useAppStore';
 import { getErrorMessage } from '../../shared/lib/errors';
 import { useToast } from '../../app/providers/ToastProvider';
 import { haptic } from '../../shared/lib/haptics';
+import { useStrings } from '../../shared/lib/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ConversionProgress'>;
 
 const RADIUS = 82;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-const steps = ['Reading image', 'Processing data', 'Applying compression', 'Saving output'];
-
 export const ConversionProgressScreen: React.FC<Props> = ({ navigation, route }) => {
   const theme = useTheme();
+  const strings = useStrings();
   const { showToast } = useToast();
   const { images, targetFormat, options } = route.params;
+
+  const steps = [
+    strings.progress.steps.readingImage,
+    strings.progress.steps.processingData,
+    strings.progress.steps.applyingCompression,
+    strings.progress.steps.savingOutput,
+  ];
 
   const setConversionResults = useAppStore(state => state.setConversionResults);
   const addManyHistoryItems = useAppStore(state => state.addManyHistoryItems);
@@ -84,9 +91,9 @@ export const ConversionProgressScreen: React.FC<Props> = ({ navigation, route })
         const message = getErrorMessage(error);
         setRecentError(message);
         showToast({ title: message, tone: 'error' });
-        Alert.alert('Conversion Failed', message, [
+        Alert.alert(strings.progress.conversionFailed, message, [
           {
-            text: 'Back',
+            text: strings.progress.back,
             onPress: () => navigation.goBack(),
           },
         ]);
@@ -111,6 +118,7 @@ export const ConversionProgressScreen: React.FC<Props> = ({ navigation, route })
     setConversionResults,
     setRecentError,
     showToast,
+    strings,
     targetFormat,
   ]);
 
@@ -121,7 +129,7 @@ export const ConversionProgressScreen: React.FC<Props> = ({ navigation, route })
 
   return (
     <Screen>
-      <AppHeader title="Converting" />
+      <AppHeader title={strings.progress.title} />
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}> 
         <View style={styles.visualWrap}>
           <Svg height={200} width={200}>
@@ -154,12 +162,12 @@ export const ConversionProgressScreen: React.FC<Props> = ({ navigation, route })
           </View>
         </View>
 
-        <Text style={[theme.typography.headlineSmall, { color: theme.colors.textPrimary }]}>Converting...</Text>
+        <Text style={[theme.typography.headlineSmall, { color: theme.colors.textPrimary }]}>{strings.progress.converting}</Text>
         <Text style={[theme.typography.bodyMedium, { color: theme.colors.textSecondary, marginTop: 6 }]}> 
           {currentName}
         </Text>
         <Text style={[theme.typography.bodySmall, { color: theme.colors.textMuted, marginTop: 2 }]}> 
-          {completed} of {images.length} complete
+          {strings.progress.completedCount(completed, images.length)}
         </Text>
 
         <View style={styles.stepsWrap}>
@@ -201,12 +209,12 @@ export const ConversionProgressScreen: React.FC<Props> = ({ navigation, route })
         <View style={styles.cancelWrap}>
           <Button
             fullWidth
-            label="Cancel"
+            label={strings.progress.cancel}
             onPress={() => {
-              Alert.alert('Cancel Conversion?', 'Current progress will be lost.', [
-                { text: 'Keep converting', style: 'cancel' },
+              Alert.alert(strings.progress.cancelTitle, strings.progress.cancelBody, [
+                { text: strings.progress.keepConverting, style: 'cancel' },
                 {
-                  text: 'Cancel',
+                  text: strings.progress.cancel,
                   style: 'destructive',
                   onPress: () => navigation.goBack(),
                 },

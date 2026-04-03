@@ -6,6 +6,7 @@ import { ThemeProvider, useTheme } from './providers/ThemeProvider';
 import { AppBootstrap } from './providers/AppBootstrap';
 import { RootNavigator } from './navigation/RootNavigator';
 import { ToastProvider } from './providers/ToastProvider';
+import { I18nProvider } from '../shared/lib/i18n';
 
 const AppBody: React.FC = () => {
   const theme = useTheme();
@@ -16,6 +17,7 @@ const AppBody: React.FC = () => {
         animated
         backgroundColor="transparent"
         barStyle={theme.isDark ? 'light-content' : 'dark-content'}
+        translucent={false}
       />
       <AppBootstrap>
         <ToastProvider>
@@ -31,7 +33,9 @@ export const App: React.FC = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider>
-          <AppBody />
+          <I18nProvider>
+            <AppBody />
+          </I18nProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
