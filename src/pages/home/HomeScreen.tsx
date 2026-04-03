@@ -47,7 +47,7 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <Screen>
-      <AppHeader title="PIXO" onSettings={() => navigation.navigate('Settings')} />
+      <AppHeader title="Squoze" />
       <ScrollView
         contentContainerStyle={[
           styles.content,

@@ -1,0 +1,1 @@
+chuyển ảnh,nén ảnh,heic,jpg,png,webp,pdf,bmp,hàng loạt,thu nhỏ ảnh

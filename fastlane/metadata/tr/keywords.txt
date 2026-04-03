@@ -1,0 +1,1 @@
+foto dönüştür,resim sıkıştır,heic,jpg,png,webp,pdf,bmp,toplu işlem,foto küçült

@@ -1,0 +1,1 @@
+几秒内转换 HEIC、JPG、PNG、WebP、BMP 和 PDF。支持批量处理、质量调节、大小预估，并可直接在 iPhone 上保存或分享。

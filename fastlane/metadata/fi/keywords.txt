@@ -1,0 +1,1 @@
+kuvamuunnin,pakkaa kuvat,heic,jpg,png,webp,pdf,bmp,erämuunnos,pienennä kuvia

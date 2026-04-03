@@ -1,0 +1,1 @@
+fotó konvertáló,kép tömörítés,heic,jpg,png,webp,pdf,bmp,köteg,fotó kicsinyítés

@@ -109,7 +109,7 @@ export const useAppStore = create<AppState>()(
       setRecentError: recentError => set({ recentError }),
     }),
     {
-      name: 'pixo-app-state',
+      name: 'squoze-app-state',
       storage: createJSONStorage(() => mmkvStorage),
       partialize: state => ({
         settings: state.settings,

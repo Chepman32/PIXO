@@ -1,4 +1,4 @@
-import { PixoImageConverter } from '../../shared/api/pixoImageConverter';
+import { SquozeImageConverter } from '../../shared/api/squozeImageConverter';
 import { createId } from '../../shared/lib/id';
 import {
   BatchProgress,
@@ -32,7 +32,7 @@ export const runConversion = async (
       currentItemName: image.fileName,
     });
 
-    const nativeResult = await PixoImageConverter.convertImage(
+    const nativeResult = await SquozeImageConverter.convertImage(
       image.uri,
       targetFormat,
       options,

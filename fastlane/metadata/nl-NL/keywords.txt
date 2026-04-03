@@ -1,0 +1,1 @@
+foto converter,afbeeldingen comprimeren,heic,jpg,png,webp,pdf,bmp,batch,fotos kleiner

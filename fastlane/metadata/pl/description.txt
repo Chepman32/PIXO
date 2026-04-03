@@ -1,0 +1,5 @@
+Squoze upraszcza konwersję zdjęć na iPhonie. Wybierz obrazy z Zdjęć, aparatu lub Plików, ustaw potrzebny format, dopasuj jakość i zapisz albo udostępnij wynik w kilka sekund.
+
+Konwertuj między JPG, PNG, WebP, HEIC, BMP i PDF. Zmieniaj HEIC na JPG dla lepszej zgodności, twórz WebP do lżejszych wysyłek w sieci, eksportuj obrazy jako PDF albo przetwarzaj wiele zdjęć partiami.
+
+Przed konwersją Squoze pokazuje szacowany rozmiar pliku wyjściowego, aby łatwiej dobrać jakość. Zachowaj metadane, gdy ich potrzebujesz, użyj progresywnego JPG lub usuń profile kolorów, aby uzyskać lżejsze pliki. Po zakończeniu możesz podejrzeć wynik, zapisać go w Zdjęciach, udostępnić do innych aplikacji i wrócić do ostatnich eksportów w historii. Squoze jest stworzone do szybkiej lokalnej konwersji bez zakładania konta.

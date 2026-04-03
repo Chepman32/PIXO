@@ -2833,9 +2833,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"PIXO@workspace:.":
+"Squoze@workspace:.":
   version: 0.0.0-use.local
-  resolution: "PIXO@workspace:."
+  resolution: "Squoze@workspace:."
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"

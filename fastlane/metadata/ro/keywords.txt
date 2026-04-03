@@ -1,0 +1,1 @@
+convertor poze,comprimare imagini,heic,jpg,png,webp,pdf,bmp,lot,micsoreaza poze

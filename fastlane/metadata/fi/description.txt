@@ -1,0 +1,5 @@
+Squoze tekee kuvien muuntamisesta helppoa iPhonella. Valitse kuvat Kuvat-, Kamera- tai Tiedostot-apista, valitse tarvitsemasi formaatti, säädä laatua ja tallenna tai jaa tulos sekunneissa.
+
+Muunna JPG:n, PNG:n, WebP:n, HEIC:n, BMP:n ja PDF:n välillä. Muuta HEIC JPG:ksi paremman yhteensopivuuden vuoksi, luo WebP kevyempiin verkkolatauksiin, vie kuvia PDF-muotoon tai käsittele useita kuvia erissä.
+
+Ennen muunnosta Squoze näyttää arvion lopullisesta tiedostokoosta, jotta laadun valitseminen on helpompaa. Säilytä metatiedot tarvittaessa, käytä progressiivista JPG:tä tai poista väriprofiilit kevyempiä tiedostoja varten. Muunnoksen jälkeen voit esikatsella tulosta, tallentaa sen Kuvat-appiin, jakaa muihin appeihin ja avata viimeisimmät viennit historiasta. Squoze on tehty nopeaan paikalliseen muuntamiseen ilman tiliä.

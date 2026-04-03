@@ -1,0 +1,1 @@
+bildekonverter,komprimer bilder,heic,jpg,png,webp,pdf,bmp,batch,krymp bilder

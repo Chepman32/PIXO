@@ -1,0 +1,5 @@
+Squoze memudahkan penukaran foto pada iPhone. Pilih imej daripada Foto, Kamera atau Fail, tentukan format yang anda perlukan, laraskan kualiti, kemudian simpan atau kongsi hasilnya dalam beberapa saat.
+
+Tukar antara JPG, PNG, WebP, HEIC, BMP dan PDF. Ubah HEIC ke JPG untuk keserasian yang lebih baik, cipta WebP untuk muat naik web yang lebih ringan, eksport imej sebagai PDF atau proses beberapa foto sekali gus secara pukal.
+
+Sebelum menukar, Squoze memaparkan anggaran saiz fail output supaya anda boleh memilih tetapan kualiti dengan lebih baik. Kekalkan metadata apabila perlu, gunakan JPG progresif, atau buang profil warna untuk fail yang lebih ringan. Setelah selesai, anda boleh pratonton hasil, simpan ke Foto, kongsi ke aplikasi lain dan buka semula eksport terkini dalam sejarah. Squoze dibina untuk penukaran tempatan yang pantas tanpa akaun.

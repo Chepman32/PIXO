@@ -1,0 +1,5 @@
+A Squoze egyszerűvé teszi a fotók konvertálását iPhone-on. Válassz képeket a Fotók, a Kamera vagy a Fájlok appból, állítsd be a kívánt formátumot, szabályozd a minőséget, majd mentsd vagy oszd meg az eredményt másodpercek alatt.
+
+Konvertálj JPG, PNG, WebP, HEIC, BMP és PDF között. Alakítsd a HEIC-et JPG-vé a jobb kompatibilitásért, készíts WebP-t könnyebb webes feltöltésekhez, exportálj képeket PDF-be vagy dolgozz fel több fotót kötegekben.
+
+Konvertálás előtt a Squoze megbecsüli a kimeneti fájl méretét, hogy könnyebb legyen jó minőséget választani. Tartsd meg a metaadatokat, ha szükség van rájuk, használj progresszív JPG-t, vagy távolítsd el a színprofilokat a könnyebb fájlokért. A művelet után előnézetben megnézheted az eredményt, elmentheted a Fotókba, megoszthatod más appokkal, és újra megnyithatod a legutóbbi exportokat az előzményekből. A Squoze gyors, helyi konvertálásra készült, fiók nélkül.

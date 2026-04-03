@@ -1,0 +1,1 @@
+fotokonverterare,komprimera bilder,heic,jpg,png,webp,pdf,bmp,batch,krymp foton

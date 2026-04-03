@@ -1,0 +1,5 @@
+Squoze gör bildkonvertering enkel på iPhone. Välj bilder från Bilder, Kamera eller Filer, välj formatet du behöver, justera kvaliteten och spara eller dela resultatet på några sekunder.
+
+Konvertera mellan JPG, PNG, WebP, HEIC, BMP och PDF. Gör om HEIC till JPG för bättre kompatibilitet, skapa WebP för lättare webbuppladdningar, exportera bilder som PDF eller behandla flera foton i batch.
+
+Innan du konverterar visar Squoze en uppskattning av filstorleken så att du kan välja en smartare kvalitetsnivå. Behåll metadata när du behöver dem, använd progressiv JPG eller ta bort färgprofiler för lättare filer. När konverteringen är klar kan du förhandsgranska resultatet, spara det i Bilder, dela det till andra appar och öppna senaste exporter igen i historiken. Squoze är byggd för snabb lokal konvertering utan konto.

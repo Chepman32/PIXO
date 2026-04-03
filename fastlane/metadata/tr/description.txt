@@ -1,0 +1,5 @@
+Squoze, iPhone'da fotoğraf dönüştürmeyi kolaylaştırır. Fotoğraflar, Kamera veya Dosyalar'dan görseller seçin, ihtiyacınız olan formatı belirleyin, kaliteyi ayarlayın ve sonucu saniyeler içinde kaydedin ya da paylaşın.
+
+JPG, PNG, WebP, HEIC, BMP ve PDF arasında dönüştürün. Daha iyi uyumluluk için HEIC'i JPG'ye çevirin, daha hafif web yüklemeleri için WebP oluşturun, görselleri PDF olarak dışa aktarın veya birden fazla fotoğrafı toplu olarak işleyin.
+
+Dönüştürmeden önce Squoze, daha akıllı bir kalite seçimi yapmanız için çıktı boyutu tahmini gösterir. Gerektiğinde meta verileri koruyun, progressif JPG kullanın veya daha hafif dosyalar için renk profillerini kaldırın. İşlem bittiğinde sonucu önizleyin, Fotoğraflar'a kaydedin, diğer uygulamalarda paylaşın ve geçmişteki son aktarımları yeniden açın. Squoze hesap gerektirmeden hızlı yerel dönüşüm için tasarlanmıştır.

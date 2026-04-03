@@ -92,7 +92,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
           },
         ]}
       >
-        <Text style={styles.wordmark}>PIXO</Text>
+        <Text style={styles.wordmark}>Squoze</Text>
         <Text style={styles.tagline}>{strings.splash.tagline}</Text>
       </Animated.View>
     </LinearGradient>

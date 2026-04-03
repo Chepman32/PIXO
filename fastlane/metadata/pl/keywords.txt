@@ -1,0 +1,1 @@
+konwerter zdjęć,kompresja zdjęć,heic,jpg,png,webp,pdf,bmp,partie,zmniejsz zdjęcia

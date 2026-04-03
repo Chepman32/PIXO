@@ -1,0 +1,5 @@
+Squoze usnadňuje převod fotek na iPhonu. Vyberte obrázky z Fotek, Fotoaparátu nebo Souborů, zvolte požadovaný formát, upravte kvalitu a výsledek během několika sekund uložte nebo sdílejte.
+
+Převádějte mezi JPG, PNG, WebP, HEIC, BMP a PDF. Změňte HEIC na JPG kvůli lepší kompatibilitě, vytvořte WebP pro lehčí webové nahrávání, exportujte obrázky jako PDF nebo zpracujte více fotek najednou dávkově.
+
+Před převodem Squoze zobrazí odhad výsledné velikosti souboru, takže se lépe rozhodnete pro kvalitu. Zachovejte metadata, když je potřebujete, používejte progresivní JPG nebo odeberte barevné profily pro lehčí soubory. Po dokončení si můžete výsledek prohlédnout, uložit do Fotek, sdílet do dalších aplikací a znovu otevřít nedávné exporty v historii. Squoze je vytvořen pro rychlý lokální převod bez účtu.

@@ -1,0 +1,1 @@
+converter fotos,comprimir imagens,heic,jpg,png,webp,pdf,bmp,lote,reduzir fotos

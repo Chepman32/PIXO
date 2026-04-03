@@ -8,7 +8,7 @@ import { RootStackParamList } from '../../app/navigation/types';
 import { CONVERSION_MATRIX, FORMAT_META, SUPPORTED_OUTPUT_FORMATS } from '../../shared/config/formats';
 import { FormatOptionCard } from '../../widgets/format-selector/FormatOptionCard';
 import { Button } from '../../shared/ui/Button';
-import { PixoImageConverter } from '../../shared/api/pixoImageConverter';
+import { SquozeImageConverter } from '../../shared/api/squozeImageConverter';
 import { getReadableSize } from '../../shared/lib/file';
 import { SupportedOutputFormat } from '../../types/models';
 import { useStrings } from '../../shared/lib/i18n';
@@ -48,7 +48,7 @@ export const FormatSelectionScreen: React.FC<Props> = ({ navigation, route }) =>
       for (const format of availableFormats) {
         const estimatesForFormat = await Promise.all(
           images.map(image =>
-            PixoImageConverter.estimateOutputSize(image.uri, format, options?.quality ?? 80).catch(() => image.fileSize),
+            SquozeImageConverter.estimateOutputSize(image.uri, format, options?.quality ?? 80).catch(() => image.fileSize),
           ),
         );
         map[format] = estimatesForFormat.reduce((sum, value) => sum + value, 0);

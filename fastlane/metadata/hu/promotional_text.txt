@@ -1,0 +1,1 @@
+HEIC, JPG, PNG, WebP, BMP és PDF konvertálása másodpercek alatt. Kötegelt művelet, minőségállítás, méretbecslés, majd mentés vagy megosztás iPhone-ról.

@@ -1,15 +1,15 @@
 export const logger = {
   info: (...args: unknown[]) => {
     if (__DEV__) {
-      console.log('[PIXO]', ...args);
+      console.log('[Squoze]', ...args);
     }
   },
   warn: (...args: unknown[]) => {
     if (__DEV__) {
-      console.warn('[PIXO]', ...args);
+      console.warn('[Squoze]', ...args);
     }
   },
   error: (...args: unknown[]) => {
-    console.error('[PIXO]', ...args);
+    console.error('[Squoze]', ...args);
   },
 };

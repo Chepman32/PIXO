@@ -1,0 +1,1 @@
+写真変換,画像圧縮,heic,jpg,png,webp,pdf,bmp,一括変換,写真縮小

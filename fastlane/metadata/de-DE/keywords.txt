@@ -1,0 +1,1 @@
+bildkonverter,fotos komprimieren,heic,jpg,png,webp,pdf,bmp,stapel,fotos verkleinern

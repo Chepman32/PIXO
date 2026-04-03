@@ -1,0 +1,1 @@
+photo converter,image compressor,heic to jpg,png,webp,pdf,batch resize,shrink photos

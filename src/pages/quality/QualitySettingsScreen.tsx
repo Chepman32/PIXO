@@ -18,7 +18,7 @@ import { RootStackParamList } from '../../app/navigation/types';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { QualitySlider } from '../../widgets/quality-slider/QualitySlider';
 import { Button } from '../../shared/ui/Button';
-import { PixoImageConverter } from '../../shared/api/pixoImageConverter';
+import { SquozeImageConverter } from '../../shared/api/squozeImageConverter';
 import { getReadableSize } from '../../shared/lib/file';
 import { ConversionOptions } from '../../types/models';
 import { useStrings } from '../../shared/lib/i18n';
@@ -68,7 +68,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
     let mounted = true;
     Promise.all(
       images.map(item =>
-        PixoImageConverter.estimateOutputSize(item.uri, targetFormat, form.quality).catch(
+        SquozeImageConverter.estimateOutputSize(item.uri, targetFormat, form.quality).catch(
           () => item.fileSize,
         ),
       ),

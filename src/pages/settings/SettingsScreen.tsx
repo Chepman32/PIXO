@@ -263,9 +263,8 @@ export const SettingsScreen: React.FC = () => {
         <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>{strings.settings.about}</Text>
         <View style={[styles.group, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
           {settingRow(strings.settings.version, '1.0.0')}
-          {settingRow(strings.settings.ratePixo, strings.common.open, () => Linking.openURL('https://apps.apple.com'))}
-          {settingRow(strings.settings.privacyPolicy, strings.common.open, () => Linking.openURL('https://example.com/privacy'))}
-          {settingRow(strings.settings.termsOfService, strings.common.open, () => Linking.openURL('https://example.com/terms'))}
+          {settingRow(strings.settings.rateSquoze, strings.common.open, () => Linking.openURL('https://apps.apple.com'))}
+          {settingRow(strings.settings.privacyPolicy, strings.common.open, () => Linking.openURL('https://www.termsfeed.com/live/8ad2944c-d875-428d-aaed-10da0de31846'))}
         </View>
       </ScrollView>
 

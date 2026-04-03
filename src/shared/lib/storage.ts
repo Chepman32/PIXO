@@ -1,5 +1,5 @@
 import { createMMKV } from 'react-native-mmkv';
 
 export const appStorage = createMMKV({
-  id: 'pixo-storage',
+  id: 'squoze-storage',
 });

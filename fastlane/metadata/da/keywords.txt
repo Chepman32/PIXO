@@ -1,0 +1,1 @@
+fotokonverter,komprimer billeder,heic,jpg,png,webp,pdf,bmp,batch,formindsk fotos

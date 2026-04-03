@@ -1,0 +1,1 @@
+사진변환,이미지압축,heic,jpg,png,webp,pdf,bmp,일괄변환,사진줄이기
