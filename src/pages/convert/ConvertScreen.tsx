@@ -26,6 +26,15 @@ export const ConvertScreen: React.FC = () => {
     }
   }, [route.params?.initialAssets]);
 
+  useEffect(() => {
+    if (!route.params?.openPicker) {
+      return;
+    }
+
+    setPickerVisible(true);
+    navigation.setParams({ openPicker: undefined });
+  }, [navigation, route.params?.openPicker]);
+
   const totalSize = useMemo(
     () => assets.reduce((sum, item) => sum + item.fileSize, 0),
     [assets],
@@ -33,7 +42,7 @@ export const ConvertScreen: React.FC = () => {
 
   return (
     <Screen>
-      <AppHeader title={strings.convert.title} />
+      <AppHeader title={strings.quickActions.batch} />
       <ScrollView contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}> 
         {assets.length ? (
           <>
@@ -90,6 +99,7 @@ export const ConvertScreen: React.FC = () => {
       <ImagePickerSheet
         onClose={() => setPickerVisible(false)}
         onSelect={selected => setAssets(prev => [...prev, ...selected])}
+        selectionLimit={100}
         visible={pickerVisible}
       />
     </Screen>

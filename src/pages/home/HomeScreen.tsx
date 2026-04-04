@@ -86,6 +86,10 @@ export const HomeScreen: React.FC = () => {
                   navigation.navigate('History');
                   return;
                 }
+                if (action.type === 'batch') {
+                  navigation.navigate('Batch', { openPicker: true });
+                  return;
+                }
                 openPicker(action.to);
               }}
               style={({ pressed }) => [
@@ -140,6 +144,7 @@ export const HomeScreen: React.FC = () => {
       <ImagePickerSheet
         onClose={() => setPickerVisible(false)}
         onSelect={handleSelection}
+        selectionLimit={1}
         visible={pickerVisible}
       />
     </Screen>

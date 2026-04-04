@@ -81,7 +81,27 @@ export const FormatSelectionScreen: React.FC<Props> = ({ navigation, route }) =>
       <ScrollView contentContainerStyle={[styles.content, { backgroundColor: theme.colors.background }]}> 
         <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.formatSelection.convertingFrom}</Text>
         <View style={[styles.sourceCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
-          <Image source={{ uri: first.uri }} style={styles.sourceThumb} />
+          {images.length === 1 ? (
+            <Image source={{ uri: first.uri }} style={styles.sourceThumb} />
+          ) : (
+            <View style={styles.collage}>
+              {images.slice(0, 4).map((image, index) => {
+                const showOverflow = index === 3 && images.length > 4;
+                return (
+                  <View key={image.id} style={styles.collageCell}>
+                    <Image source={{ uri: image.uri }} style={styles.collageThumb} />
+                    {showOverflow ? (
+                      <View style={styles.collageOverlay}>
+                        <Text style={[theme.typography.labelLarge, styles.collageOverlayText]}>
+                          +{images.length - 4}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+                );
+              })}
+            </View>
+          )}
           <View style={styles.sourceTextWrap}>
             <Text numberOfLines={1} style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}> 
               {images.length === 1 ? first.fileName : strings.formatSelection.imagesSelected(images.length)}
@@ -148,6 +168,33 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     height: 80,
     width: 80,
+  },
+  collage: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    height: 80,
+    width: 80,
+  },
+  collageCell: {
+    borderRadius: 8,
+    height: 38,
+    overflow: 'hidden',
+    position: 'relative',
+    width: 38,
+  },
+  collageThumb: {
+    height: '100%',
+    width: '100%',
+  },
+  collageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    justifyContent: 'center',
+  },
+  collageOverlayText: {
+    color: '#FFFFFF',
   },
   sourceTextWrap: {
     flex: 1,

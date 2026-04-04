@@ -2,8 +2,9 @@ import { ImageAsset, ConversionOptions, ConversionResult, SupportedOutputFormat 
 
 export type MainTabParamList = {
   Home: undefined;
-  Convert: {
+  Batch: {
     initialAssets?: ImageAsset[];
+    openPicker?: boolean;
     presetTarget?: SupportedOutputFormat;
     presetOptions?: Partial<ConversionOptions>;
   } | undefined;

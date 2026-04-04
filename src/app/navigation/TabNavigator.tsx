@@ -39,7 +39,7 @@ export const TabNavigator: React.FC = () => {
           switch (route.name) {
             case 'Home':
               return <House color={color} size={22} weight={weight} />;
-            case 'Convert':
+            case 'Batch':
               return <Images color={color} size={22} weight={weight} />;
             case 'History':
               return <ClockCounterClockwise color={color} size={22} weight={weight} />;
@@ -52,7 +52,7 @@ export const TabNavigator: React.FC = () => {
       })}
     >
       <Tab.Screen component={HomeScreen} name="Home" options={{ tabBarLabel: strings.tabs.home }} />
-      <Tab.Screen component={ConvertScreen} name="Convert" options={{ tabBarLabel: strings.tabs.convert }} />
+      <Tab.Screen component={ConvertScreen} name="Batch" options={{ tabBarLabel: strings.quickActions.batch }} />
       <Tab.Screen component={HistoryScreen} name="History" options={{ tabBarLabel: strings.tabs.history }} />
       <Tab.Screen component={SettingsScreen} name="Settings" options={{ tabBarLabel: strings.tabs.settings }} />
     </Tab.Navigator>

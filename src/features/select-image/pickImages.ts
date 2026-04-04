@@ -28,7 +28,7 @@ const toImageAsset = async (asset: Asset): Promise<ImageAsset | null> => {
 };
 
 export const pickImagesFromLibrary = async (
-  selectionLimit = 100,
+  selectionLimit = 1,
 ): Promise<ImageAsset[]> => {
   const options: ImageLibraryOptions = {
     mediaType: 'photo',
@@ -62,14 +62,17 @@ export const pickImageFromCamera = async (): Promise<ImageAsset[]> => {
   return first ? [first] : [];
 };
 
-export const pickImagesFromFiles = async (): Promise<ImageAsset[]> => {
+export const pickImagesFromFiles = async (
+  selectionLimit = 1,
+): Promise<ImageAsset[]> => {
   const docs = await DocumentPicker.pick({
-    allowMultiSelection: true,
+    allowMultiSelection: selectionLimit > 1,
     type: [DocumentPicker.types.images],
   });
+  const pickedDocs = Array.isArray(docs) ? docs : [docs];
 
   const items = await Promise.all(
-    docs.map(async doc =>
+    pickedDocs.slice(0, selectionLimit).map(async doc =>
       normalizeImageAsset({
         id: createId(),
         uri: doc.uri,

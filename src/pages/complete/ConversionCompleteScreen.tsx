@@ -59,10 +59,11 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
   };
 
   const more = () => {
+    const nextTab = results.length > 1 ? 'Batch' : 'Home';
     Alert.alert(strings.complete.moreActionsTitle, strings.complete.chooseAction, [
       {
         text: strings.complete.convertAgain,
-        onPress: () => navigation.navigate('MainTabs', { screen: 'Convert' } as never),
+        onPress: () => navigation.navigate('MainTabs', { screen: nextTab } as never),
       },
       {
         text: strings.complete.viewOriginal,
@@ -132,7 +133,7 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
           fullWidth
           label={strings.complete.convertAnother}
           leftIcon={<Plus color={theme.colors.primary} size={18} />}
-          onPress={() => navigation.navigate('MainTabs', { screen: 'Convert' } as never)}
+          onPress={() => navigation.navigate('MainTabs', { screen: results.length > 1 ? 'Batch' : 'Home' } as never)}
           variant="secondary"
         />
 

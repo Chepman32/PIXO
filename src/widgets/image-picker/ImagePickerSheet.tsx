@@ -29,7 +29,7 @@ const OPTION_ROW_HEIGHT = 56;
 
 export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
   visible,
-  selectionLimit = 100,
+  selectionLimit = 1,
   onClose,
   onSelect,
   onError,
@@ -48,7 +48,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
       } else if (action === 'camera') {
         selected = await pickImageFromCamera();
       } else {
-        selected = await pickImagesFromFiles();
+        selected = await pickImagesFromFiles(selectionLimit);
       }
 
       if (selected.length) {

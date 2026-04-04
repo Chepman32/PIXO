@@ -195,7 +195,7 @@ export const HistoryScreen: React.FC = () => {
         <EmptyState
           actionLabel={strings.history.convertAnImage}
           description={strings.history.noConversionsDescription}
-          onAction={() => navigation.navigate('Convert')}
+          onAction={() => navigation.navigate('Home')}
           title={strings.history.noConversionsTitle}
         />
       )}

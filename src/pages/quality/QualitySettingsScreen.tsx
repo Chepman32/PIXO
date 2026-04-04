@@ -19,6 +19,7 @@ import { useTheme } from '../../app/providers/ThemeProvider';
 import { QualitySlider } from '../../widgets/quality-slider/QualitySlider';
 import { Button } from '../../shared/ui/Button';
 import { SquozeImageConverter } from '../../shared/api/squozeImageConverter';
+import { FORMAT_META } from '../../shared/config/formats';
 import { getReadableSize } from '../../shared/lib/file';
 import { ConversionOptions } from '../../types/models';
 import { useStrings } from '../../shared/lib/i18n';
@@ -63,12 +64,14 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
   const [advancedHeaderY, setAdvancedHeaderY] = useState(0);
   const accordionHeight = useRef(new Animated.Value(0)).current;
   const accordionProgress = useRef(new Animated.Value(0)).current;
+  const supportsQuality = Boolean(FORMAT_META[targetFormat].lossy);
+  const estimateQuality = supportsQuality ? form.quality : 100;
 
   useEffect(() => {
     let mounted = true;
     Promise.all(
       images.map(item =>
-        SquozeImageConverter.estimateOutputSize(item.uri, targetFormat, form.quality).catch(
+        SquozeImageConverter.estimateOutputSize(item.uri, targetFormat, estimateQuality).catch(
           () => item.fileSize,
         ),
       ),
@@ -82,7 +85,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
     return () => {
       mounted = false;
     };
-  }, [form.quality, images, targetFormat]);
+  }, [estimateQuality, images, targetFormat]);
 
   const sourceSize = useMemo(
     () => images.reduce((sum, item) => sum + item.fileSize, 0),
@@ -179,10 +182,12 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
           </View>
         </View>
 
-        <QualitySlider
-          onChange={quality => setForm(prev => ({ ...prev, quality }))}
-          value={form.quality}
-        />
+        {supportsQuality ? (
+          <QualitySlider
+            onChange={quality => setForm(prev => ({ ...prev, quality }))}
+            value={form.quality}
+          />
+        ) : null}
 
         <View style={[styles.estimateCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
           <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>{strings.quality.outputSizeEstimate}</Text>
