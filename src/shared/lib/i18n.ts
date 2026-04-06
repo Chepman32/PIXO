@@ -119,6 +119,13 @@ interface AppStrings {
     save: string;
     more: string;
     convertAnother: string;
+    saveOptions: string;
+    saveToGallery: string;
+    saveToGallerySubtitle: string;
+    saveToGalleryUnsupported: string;
+    saveToFiles: string;
+    saveToFilesSubtitle: string;
+    shareSubtitle: string;
   };
   progress: {
     title: string;
@@ -405,6 +412,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'Save',
       more: 'More',
       convertAnother: 'Convert Another',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'Converting',
@@ -594,6 +608,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: '保存',
       more: '更多',
       convertAnother: '继续转换',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: '正在转换',
@@ -783,6 +804,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: '保存',
       more: 'その他',
       convertAnother: '別の画像を変換',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: '変換中',
@@ -972,6 +1000,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: '저장',
       more: '더 보기',
       convertAnother: '다른 이미지 변환',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: '변환 중',
@@ -1162,6 +1197,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'Speichern',
       more: 'Mehr',
       convertAnother: 'Weiteres Bild konvertieren',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'Wird konvertiert',
@@ -1352,6 +1394,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'Enregistrer',
       more: 'Plus',
       convertAnother: 'Convertir une autre image',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'Conversion',
@@ -1542,6 +1591,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'Guardar',
       more: 'Más',
       convertAnother: 'Convertir otra',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'Convirtiendo',
@@ -1731,6 +1787,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'Salvar',
       more: 'Mais',
       convertAnother: 'Converter outra',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'Convertendo',
@@ -1920,6 +1983,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'حفظ',
       more: 'المزيد',
       convertAnother: 'تحويل صورة أخرى',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'جارٍ التحويل',
@@ -2110,6 +2180,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'Сохранить',
       more: 'Ещё',
       convertAnother: 'Конвертировать ещё',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'Идёт конвертация',
@@ -2298,7 +2375,14 @@ const translations: Record<AppLocale, AppStrings> = {
       share: 'Condividi',
       save: 'Salva',
       more: 'Altro',
-      convertAnother: 'Converti un’altra immagine',
+      convertAnother: "Converti un\u2019altra immagine",
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'Conversione in corso',
@@ -2488,6 +2572,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'सेव',
       more: 'और',
       convertAnother: 'एक और इमेज कन्वर्ट करें',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'कन्वर्ट हो रहा है',
@@ -2677,6 +2768,13 @@ const translations: Record<AppLocale, AppStrings> = {
       save: 'I-save',
       more: 'Higit pa',
       convertAnother: 'Mag-convert ng iba pa',
+      saveOptions: 'Save',
+      saveToGallery: 'Save to Gallery',
+      saveToGallerySubtitle: 'Add to your Photos library',
+      saveToGalleryUnsupported: 'Not supported for PDF format',
+      saveToFiles: 'Save to Files',
+      saveToFilesSubtitle: 'Save to the Files app',
+      shareSubtitle: 'AirDrop, Messages, and more',
     },
     progress: {
       title: 'Nagko-convert',

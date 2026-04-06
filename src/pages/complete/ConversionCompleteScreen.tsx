@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   Image,
@@ -8,18 +8,17 @@ import {
   Text,
   View,
 } from 'react-native';
-import Share from 'react-native-share';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { CheckCircle, DotsThreeOutline, DownloadSimple, Plus, ShareNetwork } from 'phosphor-react-native';
+import Share from 'react-native-share';
 import { AppHeader } from '../../shared/ui/AppHeader';
 import { Screen } from '../../shared/ui/Screen';
 import { RootStackParamList } from '../../app/navigation/types';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { Button } from '../../shared/ui/Button';
 import { getReadableSize } from '../../shared/lib/file';
-import { useToast } from '../../app/providers/ToastProvider';
 import { useStrings } from '../../shared/lib/i18n';
+import { SaveOptionsSheet } from '../../widgets/save-options/SaveOptionsSheet';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ConversionComplete'>;
 
@@ -37,18 +36,9 @@ const iconButtonStyles = StyleSheet.create({
 export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route }) => {
   const theme = useTheme();
   const strings = useStrings();
-  const { showToast } = useToast();
   const { results } = route.params;
   const first = results[0];
-
-  const saveAll = async () => {
-    try {
-      await Promise.all(results.map(item => CameraRoll.saveAsset(item.outputPath, { type: 'photo' })));
-      showToast({ title: strings.common.savedToPhotos, tone: 'success' });
-    } catch {
-      showToast({ title: strings.common.saveFailed, tone: 'error' });
-    }
-  };
+  const [saveSheetVisible, setSaveSheetVisible] = useState(false);
 
   const shareAll = async () => {
     try {
@@ -114,7 +104,7 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
             <Text style={[theme.typography.labelMedium, { color: theme.colors.textPrimary }]}>{strings.complete.share}</Text>
           </Pressable>
           <Pressable
-            onPress={saveAll}
+            onPress={() => setSaveSheetVisible(true)}
             style={[iconButtonStyles.button, { backgroundColor: theme.colors.surfaceSecondary }]}
           >
             <DownloadSimple color={theme.colors.textPrimary} size={20} />
@@ -145,6 +135,11 @@ export const ConversionCompleteScreen: React.FC<Props> = ({ navigation, route })
           />
         </View>
       </ScrollView>
+      <SaveOptionsSheet
+        visible={saveSheetVisible}
+        results={results}
+        onClose={() => setSaveSheetVisible(false)}
+      />
     </Screen>
   );
 };
