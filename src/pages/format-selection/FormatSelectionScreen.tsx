@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { InfoModal } from '../../shared/ui/InfoModal';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppHeader } from '../../shared/ui/AppHeader';
 import { Screen } from '../../shared/ui/Screen';
@@ -38,6 +39,7 @@ export const FormatSelectionScreen: React.FC<Props> = ({ navigation, route }) =>
   const [selected, setSelected] = useState<SupportedOutputFormat | undefined>(
     initialTarget ?? availableFormats[0],
   );
+  const [infoVisible, setInfoVisible] = useState(false);
   const [estimates, setEstimates] = useState<Record<SupportedOutputFormat, number>>({} as Record<SupportedOutputFormat, number>);
 
   useEffect(() => {
@@ -71,10 +73,7 @@ export const FormatSelectionScreen: React.FC<Props> = ({ navigation, route }) =>
       <AppHeader
         onBack={() => navigation.goBack()}
         onInfo={() =>
-          Alert.alert(
-            strings.formatSelection.infoTitle,
-            strings.formatSelection.infoBody,
-          )
+          setInfoVisible(true)
         }
         title={strings.formatSelection.title}
       />
@@ -148,6 +147,12 @@ export const FormatSelectionScreen: React.FC<Props> = ({ navigation, route }) =>
           }}
         />
       </View>
+      <InfoModal
+        visible={infoVisible}
+        title={strings.formatSelection.infoTitle}
+        body={strings.formatSelection.infoBody}
+        onClose={() => setInfoVisible(false)}
+      />
     </Screen>
   );
 };
