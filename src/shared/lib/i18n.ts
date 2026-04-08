@@ -154,6 +154,7 @@ interface AppStrings {
     defaultQuality: string;
     preserveMetadata: string;
     autoSaveToPhotos: string;
+    haptics?: string;
     theme: string;
     cacheSize: string;
     clearHistory: string;
@@ -447,6 +448,7 @@ const translations: Record<AppLocale, AppStrings> = {
       defaultQuality: 'Default Quality',
       preserveMetadata: 'Preserve Metadata',
       autoSaveToPhotos: 'Auto-Save to Photos',
+      haptics: 'Haptics',
       theme: 'Theme',
       cacheSize: 'Cache Size',
       clearHistory: 'Clear History',
@@ -2215,6 +2217,7 @@ const translations: Record<AppLocale, AppStrings> = {
       defaultQuality: 'Качество по умолчанию',
       preserveMetadata: 'Сохранять метаданные',
       autoSaveToPhotos: 'Автосохранение в Фото',
+      haptics: 'Тактильный отклик',
       theme: 'Тема',
       cacheSize: 'Размер кэша',
       clearHistory: 'Очистить историю',

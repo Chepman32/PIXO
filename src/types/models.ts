@@ -102,6 +102,7 @@ export interface AppSettings {
   defaultQuality: number;
   preserveMetadata: boolean;
   autoSaveToPhotos: boolean;
+  hapticsEnabled: boolean;
   locale: AppLocalePreference;
   theme: 'system' | 'light' | 'dark';
   appIcon: 'default' | 'dark' | 'minimal';

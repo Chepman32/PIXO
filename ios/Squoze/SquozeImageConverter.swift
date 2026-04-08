@@ -31,8 +31,38 @@ class SquozeImageConverter: NSObject {
 
       let outputURL = try makeOutputURL(format: targetFormat)
 
+      guard let source = CGImageSourceCreateWithURL(sourceURL as CFURL, nil),
+            let sourceImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+        rejecter("decode_failed", "Unable to decode source image", nil)
+        return
+      }
+
+      let sourceProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [String: Any]
+      let quality = normalizedQuality(from: options["quality"])
+      let preserveMetadata = (options["preserveMetadata"] as? Bool) ?? true
+      let progressive = (options["progressive"] as? Bool) ?? false
+      let stripColorProfile = (options["stripColorProfile"] as? Bool) ?? false
+      let maxDimension = resolvedMaxDimension(
+        for: sourceImage,
+        targetFormat: targetFormat,
+        quality: quality,
+        requestedMaxDimension: (options["maxDimension"] as? NSNumber)?.doubleValue
+      )
+      let maintainAspectRatio = (options["maintainAspectRatio"] as? Bool) ?? true
+
+      let finalImage: CGImage
+      if let maxDimension = maxDimension, maxDimension > 0 {
+        finalImage = resizeImage(
+          sourceImage,
+          maxDimension: CGFloat(maxDimension),
+          maintainAspectRatio: maintainAspectRatio
+        ) ?? sourceImage
+      } else {
+        finalImage = sourceImage
+      }
+
       if targetFormat.lowercased() == "pdf" {
-        let result = try convertToPDF(sourceURL: sourceURL, outputURL: outputURL)
+        let result = try convertToPDF(sourceURL: sourceURL, outputURL: outputURL, image: finalImage)
         resolver([
           "outputPath": result.outputURL.path,
           "originalSize": result.originalSize,
@@ -46,31 +76,6 @@ class SquozeImageConverter: NSObject {
           ]
         ])
         return
-      }
-
-      guard let source = CGImageSourceCreateWithURL(sourceURL as CFURL, nil),
-            let sourceImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
-        rejecter("decode_failed", "Unable to decode source image", nil)
-        return
-      }
-
-      let sourceProperties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [String: Any]
-      let quality = normalizedQuality(from: options["quality"])
-      let preserveMetadata = (options["preserveMetadata"] as? Bool) ?? true
-      let progressive = (options["progressive"] as? Bool) ?? false
-      let stripColorProfile = (options["stripColorProfile"] as? Bool) ?? false
-      let maxDimension = (options["maxDimension"] as? NSNumber)?.doubleValue
-      let maintainAspectRatio = (options["maintainAspectRatio"] as? Bool) ?? true
-
-      let finalImage: CGImage
-      if let maxDimension = maxDimension, maxDimension > 0 {
-        finalImage = resizeImage(
-          sourceImage,
-          maxDimension: CGFloat(maxDimension),
-          maintainAspectRatio: maintainAspectRatio
-        ) ?? sourceImage
-      } else {
-        finalImage = sourceImage
       }
 
       guard let uti = utiIdentifier(for: targetFormat),
@@ -181,9 +186,20 @@ class SquozeImageConverter: NSObject {
       }
 
       let qualityValue = normalizedQuality(from: quality)
+      let finalImage: CGImage
+      if let maxDimension = resolvedMaxDimension(
+        for: image,
+        targetFormat: targetFormat,
+        quality: qualityValue,
+        requestedMaxDimension: nil
+      ), maxDimension > 0 {
+        finalImage = resizeImage(image, maxDimension: maxDimension, maintainAspectRatio: true) ?? image
+      } else {
+        finalImage = image
+      }
+
       if targetFormat.lowercased() == "pdf" {
-        let original = fileSize(for: sourceURL)
-        resolver(Int(Double(original) * 0.95))
+        resolver(pdfData(from: finalImage).count)
         return
       }
 
@@ -197,7 +213,7 @@ class SquozeImageConverter: NSObject {
       let props: [String: Any] = [
         kCGImageDestinationLossyCompressionQuality as String: qualityValue
       ]
-      CGImageDestinationAddImage(destination, image, props as CFDictionary)
+      CGImageDestinationAddImage(destination, finalImage, props as CFDictionary)
       guard CGImageDestinationFinalize(destination) else {
         rejecter("estimate_failed", "Failed to estimate size", nil)
         return
@@ -209,26 +225,13 @@ class SquozeImageConverter: NSObject {
     }
   }
 
-  private func convertToPDF(sourceURL: URL, outputURL: URL) throws -> (outputURL: URL, originalSize: Int, convertedSize: Int, compressionRatio: Double, width: Int, height: Int) {
-    guard let imageSource = CGImageSourceCreateWithURL(sourceURL as CFURL, nil),
-          let cgImage = CGImageSourceCreateImageAtIndex(imageSource, 0, nil) else {
-      throw NSError(domain: "SquozeImageConverter", code: 1001, userInfo: [NSLocalizedDescriptionKey: "Unable to decode source image for PDF conversion"])
-    }
-
-    let width = cgImage.width
-    let height = cgImage.height
-    let pageRect = CGRect(x: 0, y: 0, width: width, height: height)
-    let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
-
-    try renderer.writePDF(to: outputURL) { ctx in
-      ctx.beginPage()
-      UIImage(cgImage: cgImage).draw(in: pageRect)
-    }
-
+  private func convertToPDF(sourceURL: URL, outputURL: URL, image: CGImage) throws -> (outputURL: URL, originalSize: Int, convertedSize: Int, compressionRatio: Double, width: Int, height: Int) {
+    let pdf = pdfData(from: image)
+    try pdf.write(to: outputURL, options: .atomic)
     let originalSize = fileSize(for: sourceURL)
-    let convertedSize = fileSize(for: outputURL)
+    let convertedSize = pdf.count
     let ratio = originalSize > 0 ? Double(convertedSize) / Double(originalSize) : 1
-    return (outputURL, originalSize, convertedSize, ratio, width, height)
+    return (outputURL, originalSize, convertedSize, ratio, image.width, image.height)
   }
 
   private func normalizedURL(from input: String) throws -> URL {
@@ -260,6 +263,51 @@ class SquozeImageConverter: NSObject {
       return max(0.01, min(1, raw))
     }
     return max(0.01, min(1, raw / 100))
+  }
+
+  private func resolvedMaxDimension(
+    for image: CGImage,
+    targetFormat: String,
+    quality: Double,
+    requestedMaxDimension: Double?
+  ) -> CGFloat? {
+    if let requestedMaxDimension = requestedMaxDimension, requestedMaxDimension > 0 {
+      return CGFloat(requestedMaxDimension)
+    }
+
+    guard usesQualityAsSizeControl(for: targetFormat) else {
+      return nil
+    }
+
+    let longestEdge = max(CGFloat(image.width), CGFloat(image.height))
+    guard longestEdge > 0 else {
+      return nil
+    }
+
+    let scale = max(0.25, sqrt(max(0.01, min(1, quality))))
+    guard scale < 0.999 else {
+      return nil
+    }
+
+    return longestEdge * scale
+  }
+
+  private func usesQualityAsSizeControl(for format: String) -> Bool {
+    switch format.lowercased() {
+    case "png", "bmp", "pdf":
+      return true
+    default:
+      return false
+    }
+  }
+
+  private func pdfData(from image: CGImage) -> Data {
+    let pageRect = CGRect(x: 0, y: 0, width: CGFloat(image.width), height: CGFloat(image.height))
+    let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+    return renderer.pdfData { ctx in
+      ctx.beginPage()
+      UIImage(cgImage: image).draw(in: pageRect)
+    }
   }
 
   private func resizeImage(_ image: CGImage, maxDimension: CGFloat, maintainAspectRatio: Bool) -> CGImage? {

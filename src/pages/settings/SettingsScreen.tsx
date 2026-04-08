@@ -226,6 +226,9 @@ export const SettingsScreen: React.FC = () => {
           {toggleRow(strings.settings.autoSaveToPhotos, settings.autoSaveToPhotos, value =>
             setSettings({ autoSaveToPhotos: value }),
           )}
+          {toggleRow(strings.settings.haptics ?? 'Haptics', settings.hapticsEnabled ?? true, value =>
+            setSettings({ hapticsEnabled: value }),
+          )}
         </View>
 
         <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>{strings.settings.appearance}</Text>

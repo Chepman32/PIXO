@@ -19,7 +19,6 @@ import { useTheme } from '../../app/providers/ThemeProvider';
 import { QualitySlider } from '../../widgets/quality-slider/QualitySlider';
 import { Button } from '../../shared/ui/Button';
 import { SquozeImageConverter } from '../../shared/api/squozeImageConverter';
-import { FORMAT_META } from '../../shared/config/formats';
 import { getReadableSize } from '../../shared/lib/file';
 import { ConversionOptions } from '../../types/models';
 import { useStrings } from '../../shared/lib/i18n';
@@ -64,8 +63,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
   const [advancedHeaderY, setAdvancedHeaderY] = useState(0);
   const accordionHeight = useRef(new Animated.Value(0)).current;
   const accordionProgress = useRef(new Animated.Value(0)).current;
-  const supportsQuality = Boolean(FORMAT_META[targetFormat].lossy);
-  const estimateQuality = supportsQuality ? form.quality : 100;
+  const estimateQuality = form.quality;
 
   useEffect(() => {
     let mounted = true;
@@ -182,12 +180,10 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
           </View>
         </View>
 
-        {supportsQuality ? (
-          <QualitySlider
-            onChange={quality => setForm(prev => ({ ...prev, quality }))}
-            value={form.quality}
-          />
-        ) : null}
+        <QualitySlider
+          onChange={quality => setForm(prev => ({ ...prev, quality }))}
+          value={form.quality}
+        />
 
         <View style={[styles.estimateCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
           <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>{strings.quality.outputSizeEstimate}</Text>

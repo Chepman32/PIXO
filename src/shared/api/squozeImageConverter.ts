@@ -30,6 +30,12 @@ const nativeModule =
   (NativeModules.SquozeImageConverter as NativeSquozeImageConverter | undefined) ??
   undefined;
 
+const sizeControlScale = (quality: number) => {
+  const normalized = Math.max(0.01, Math.min(1, quality / 100));
+  const dimensionScale = Math.max(0.25, Math.sqrt(normalized));
+  return dimensionScale * dimensionScale;
+};
+
 const fallbackCopyConversion = async (
   sourcePath: string,
   targetFormat: SupportedOutputFormat,
@@ -107,8 +113,14 @@ export const SquozeImageConverter = {
     }
 
     const stat = await RNFS.stat(stripFilePrefix(sourcePath));
-    if (targetFormat === 'png' || targetFormat === 'bmp') {
-      return Number(stat.size) * 1.5;
+    if (targetFormat === 'png') {
+      return Number(stat.size) * Math.max(0.35, sizeControlScale(quality) * 1.1);
+    }
+    if (targetFormat === 'bmp') {
+      return Number(stat.size) * Math.max(0.45, sizeControlScale(quality) * 1.35);
+    }
+    if (targetFormat === 'pdf') {
+      return Number(stat.size) * Math.max(0.3, sizeControlScale(quality) * 0.95);
     }
     return Number(stat.size) * Math.max(0.2, quality / 100);
   },
