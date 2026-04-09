@@ -30,6 +30,7 @@ interface AppState {
   upsertPreset: (preset: ConversionPreset) => void;
   removePreset: (id: string) => void;
   movePreset: (id: string, direction: 'up' | 'down') => void;
+  reorderPresets: (presets: ConversionPreset[]) => void;
   setPresetHidden: (id: string, hidden: boolean) => void;
   setRecentError: (message?: string) => void;
 }
@@ -154,6 +155,7 @@ export const useAppStore = create<AppState>()(
           presets.splice(targetIndex, 0, item);
           return { presets };
         }),
+      reorderPresets: presets => set({ presets }),
       setPresetHidden: (id, hidden) =>
         set(state => ({
           presets: state.presets.map(item => (item.id === id ? { ...item, hidden } : item)),
