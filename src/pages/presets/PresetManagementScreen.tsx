@@ -82,8 +82,6 @@ export const PresetManagementScreen: React.FC = () => {
     `${visibleCount} of ${orderedPresets.length} visible`;
   const predefinedLabel = strings.settings.predefinedPreset ?? 'Predefined';
   const customLabel = strings.settings.customPreset ?? 'Custom';
-  const hideLabel = strings.settings.hidePreset ?? 'Hide';
-  const showLabel = strings.settings.showPreset ?? 'Show';
   const removeLabel = strings.settings.removePreset ?? 'Remove';
   const removeBody = strings.settings.removePresetBody ?? 'Delete this custom preset?';
   const dragHandleLabel = 'Drag to reorder';
@@ -104,14 +102,26 @@ export const PresetManagementScreen: React.FC = () => {
     }
   }, [draggingId, presets]);
 
-  const finishDrag = () => {
+  const finishDrag = (velocityY = 0) => {
+    if (!draggingId) {
+      return;
+    }
+
     const nextOrder = orderedPresetsRef.current;
     reorderPresets(nextOrder);
+    LayoutAnimation.configureNext({
+      duration: 280,
+      update: {
+        type: LayoutAnimation.Types.spring,
+        springDamping: 0.78,
+      },
+    });
     Animated.spring(dragTop, {
       toValue: currentIndexRef.current * ROW_HEIGHT,
+      velocity: velocityY / 1000,
+      tension: 170,
+      friction: 20,
       useNativeDriver: false,
-      speed: 22,
-      bounciness: 4,
     }).start(() => {
       setDraggingId(null);
       dragTop.setValue(0);
@@ -141,7 +151,13 @@ export const PresetManagementScreen: React.FC = () => {
     );
 
     if (targetIndex !== currentIndexRef.current) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      LayoutAnimation.configureNext({
+        duration: 320,
+        update: {
+          type: LayoutAnimation.Types.spring,
+          springDamping: 0.76,
+        },
+      });
       const nextOrder = moveItem(
         orderedPresetsRef.current,
         currentIndexRef.current,
@@ -182,7 +198,7 @@ export const PresetManagementScreen: React.FC = () => {
         state === State.CANCELLED ||
         state === State.FAILED
       ) {
-        finishDrag();
+        finishDrag(event.nativeEvent.velocityY);
       }
     };
 
@@ -227,127 +243,134 @@ export const PresetManagementScreen: React.FC = () => {
               <Animated.View
                 key={preset.id}
                 style={[
-                  styles.row,
+                  styles.rowWrap,
                   {
-                    backgroundColor: theme.colors.surface,
                     top: isDragging ? dragTop : index * ROW_HEIGHT,
                   },
-                  index < orderedPresets.length - 1 && !isDragging && {
-                    borderBottomColor: theme.colors.border,
-                    borderBottomWidth: StyleSheet.hairlineWidth,
-                  },
                   isDragging && {
-                    elevation: 8,
-                    shadowColor: '#000000',
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: 0.16,
-                    shadowRadius: 18,
                     zIndex: 3,
                   },
                 ]}
               >
-                <Pressable
-                  onPress={() => {
-                    if (preset.system) {
-                      setPresetHidden(preset.id, !preset.hidden);
-                      return;
-                    }
-
-                    Alert.alert(removeLabel, removeBody, [
-                      { text: strings.common.cancel, style: 'cancel' },
-                      {
-                        text: removeLabel,
-                        style: 'destructive',
-                        onPress: () => removePreset(preset.id),
-                      },
-                    ]);
-                  }}
-                  style={styles.leadingActionHitbox}
-                >
-                  <View
-                    style={[
-                      styles.leadingAction,
-                      {
-                        backgroundColor: preset.system
-                          ? theme.colors.surfaceSecondary
-                          : '#FF4D4F',
-                        opacity: preset.hidden ? 0.6 : 1,
-                      },
-                    ]}
-                  >
-                    {preset.system ? (
-                      preset.hidden ? (
-                        <Eye color={theme.colors.textPrimary} size={16} />
-                      ) : (
-                        <EyeSlash color={theme.colors.textPrimary} size={16} />
-                      )
-                    ) : (
-                      <MinusGlyph />
-                    )}
-                  </View>
-                </Pressable>
-
-                <View style={styles.contentBlock}>
-                  <Text
-                    numberOfLines={1}
-                    style={[
-                      theme.typography.bodyLarge,
-                      {
-                        color: theme.colors.textPrimary,
-                        opacity: preset.hidden ? 0.58 : 1,
-                      },
-                    ]}
-                  >
-                    {preset.name}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    style={[
-                      theme.typography.bodySmall,
-                      {
-                        color: theme.colors.textSecondary,
-                        marginTop: 4,
-                        opacity: preset.hidden ? 0.72 : 1,
-                      },
-                    ]}
-                  >
-                    {preset.from
-                      ? `${FORMAT_META[preset.from].label} -> ${FORMAT_META[preset.to].label}`
-                      : FORMAT_META[preset.to].label}
-                  </Text>
-                </View>
-
-                <View
+                <Animated.View
                   style={[
-                    styles.badge,
+                    styles.row,
                     {
-                      backgroundColor: preset.system
-                        ? theme.colors.surfaceSecondary
-                        : theme.colors.primarySubtle,
+                      backgroundColor: theme.colors.surface,
+                    },
+                    index < orderedPresets.length - 1 && !isDragging && {
+                      borderBottomColor: theme.colors.border,
+                      borderBottomWidth: StyleSheet.hairlineWidth,
+                    },
+                    isDragging && {
+                      elevation: 8,
+                      shadowColor: '#000000',
+                      shadowOffset: { width: 0, height: 10 },
+                      shadowOpacity: 0.18,
+                      shadowRadius: 28,
+                      transform: [{ scale: 1.025 }],
                     },
                   ]}
                 >
-                  <Text style={[theme.typography.labelSmall, { color: theme.colors.textPrimary }]}>
-                    {preset.system
-                      ? preset.hidden
-                        ? showLabel
-                        : predefinedLabel
-                      : customLabel}
-                  </Text>
-                </View>
+                  <Pressable
+                    onPress={() => {
+                      if (preset.system) {
+                        setPresetHidden(preset.id, !preset.hidden);
+                        return;
+                      }
 
-                <PanGestureHandler
-                  activeOffsetY={[-2, 2]}
-                  onGestureEvent={handleGestureEvent(preset.id, index)}
-                  onHandlerStateChange={handleGestureStateChange(preset.id, index)}
-                >
-                  <Animated.View
-                    accessibilityLabel={`${preset.name}. ${dragHandleLabel}`}
-                    style={styles.handleTouchArea}
+                      Alert.alert(removeLabel, removeBody, [
+                        { text: strings.common.cancel, style: 'cancel' },
+                        {
+                          text: removeLabel,
+                          style: 'destructive',
+                          onPress: () => removePreset(preset.id),
+                        },
+                      ]);
+                    }}
+                    style={styles.leadingActionHitbox}
                   >
-                    <DragHandle color={theme.colors.textMuted} />
-                  </Animated.View>
-                </PanGestureHandler>
+                    <View
+                      style={[
+                        styles.leadingAction,
+                        {
+                          backgroundColor: preset.system
+                            ? theme.colors.surfaceSecondary
+                            : '#FF4D4F',
+                          opacity: preset.hidden ? 0.6 : 1,
+                        },
+                      ]}
+                    >
+                      {preset.system ? (
+                        preset.hidden ? (
+                          <Eye color={theme.colors.textPrimary} size={16} />
+                        ) : (
+                          <EyeSlash color={theme.colors.textPrimary} size={16} />
+                        )
+                      ) : (
+                        <MinusGlyph />
+                      )}
+                    </View>
+                  </Pressable>
+
+                  <View style={styles.contentBlock}>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        theme.typography.bodyLarge,
+                        {
+                          color: theme.colors.textPrimary,
+                          opacity: preset.hidden ? 0.58 : 1,
+                        },
+                      ]}
+                    >
+                      {preset.name}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        theme.typography.bodySmall,
+                        {
+                          color: theme.colors.textSecondary,
+                          marginTop: 4,
+                          opacity: preset.hidden ? 0.72 : 1,
+                        },
+                      ]}
+                    >
+                      {preset.from
+                        ? `${FORMAT_META[preset.from].label} -> ${FORMAT_META[preset.to].label}`
+                        : FORMAT_META[preset.to].label}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.badge,
+                      {
+                        backgroundColor: preset.system
+                          ? theme.colors.surfaceSecondary
+                          : theme.colors.primarySubtle,
+                      },
+                    ]}
+                  >
+                    <Text style={[theme.typography.labelSmall, { color: theme.colors.textPrimary }]}>
+                      {preset.system ? predefinedLabel : customLabel}
+                    </Text>
+                  </View>
+
+                  <PanGestureHandler
+                    activeOffsetY={[-2, 2]}
+                    onGestureEvent={handleGestureEvent(preset.id, index)}
+                    onHandlerStateChange={handleGestureStateChange(preset.id, index)}
+                  >
+                    <Animated.View
+                      accessibilityLabel={`${preset.name}. ${dragHandleLabel}`}
+                      style={styles.handleTouchArea}
+                    >
+                      <DragHandle color={theme.colors.textMuted} />
+                    </Animated.View>
+                  </PanGestureHandler>
+                </Animated.View>
               </Animated.View>
             );
           })}
@@ -373,14 +396,17 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     overflow: 'visible',
   },
-  row: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    height: ROW_HEIGHT,
+  rowWrap: {
     left: 0,
-    paddingHorizontal: 14,
     position: 'absolute',
     right: 0,
+  },
+  row: {
+    alignItems: 'center',
+    borderRadius: 22,
+    flexDirection: 'row',
+    height: ROW_HEIGHT,
+    paddingHorizontal: 14,
   },
   leadingActionHitbox: {
     alignItems: 'center',
