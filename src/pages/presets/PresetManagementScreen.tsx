@@ -124,7 +124,6 @@ export const PresetManagementScreen: React.FC = () => {
       useNativeDriver: false,
     }).start(() => {
       setDraggingId(null);
-      dragTop.setValue(0);
     });
   };
 
