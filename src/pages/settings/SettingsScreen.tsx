@@ -10,6 +10,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import { CaretRight, Check, X } from 'phosphor-react-native';
 import Slider from '@react-native-community/slider';
@@ -30,7 +31,7 @@ import {
   useLocale,
   useStrings,
 } from '../../shared/lib/i18n';
-import { AppLocalePreference } from '../../types/models';
+import { AppLocale, AppLocalePreference } from '../../types/models';
 
 interface SelectModalProps {
   visible: boolean;
@@ -104,10 +105,26 @@ const SelectModal: React.FC<SelectModalProps> = ({
   );
 };
 
+export const getLocaleSelectOptions = (
+  localePreference: AppLocalePreference,
+  systemLocale: AppLocale,
+) => [
+  {
+    id: 'system',
+    label: getSystemLanguageLabel(localePreference),
+    description: getLocaleNativeName(systemLocale),
+  },
+  ...SUPPORTED_APP_LOCALES.map(item => ({
+    id: item,
+    label: getLocaleNativeName(item),
+  })),
+];
+
 export const SettingsScreen: React.FC = () => {
   const theme = useTheme();
   const strings = useStrings();
-  const { locale, localePreference } = useLocale();
+  const { locale, localePreference, systemLocale } = useLocale();
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const maxSheetHeight = Dimensions.get('window').height - insets.top - 20;
   const settings = useAppStore(state => state.settings);
@@ -261,6 +278,10 @@ export const SettingsScreen: React.FC = () => {
               },
             ]);
           }, true)}
+          {settingRow(strings.settings.resetOnboarding, '', () => {
+            setSettings({ onboardingCompleted: false });
+            navigation.navigate('Onboarding' as never);
+          }, true)}
         </View>
 
         <Text style={[styles.sectionLabel, theme.typography.labelMedium, { color: theme.colors.textMuted }]}>{strings.settings.about}</Text>
@@ -273,17 +294,7 @@ export const SettingsScreen: React.FC = () => {
       <SelectModal
         onClose={() => setLocaleModalVisible(false)}
         onSelect={id => setSettings({ locale: id as AppLocalePreference })}
-        options={[
-          {
-            id: 'system',
-            label: getSystemLanguageLabel(localePreference),
-            description: getLocaleNativeName(locale),
-          },
-          ...SUPPORTED_APP_LOCALES.map(item => ({
-            id: item,
-            label: getLocaleNativeName(item),
-          })),
-        ]}
+        options={getLocaleSelectOptions(localePreference, systemLocale)}
         selected={currentLocalePreference}
         title={getLanguageSettingLabel(localePreference)}
         visible={localeModalVisible}

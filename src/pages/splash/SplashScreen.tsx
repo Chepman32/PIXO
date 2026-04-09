@@ -4,6 +4,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../app/providers/ThemeProvider';
 import { RootStackParamList } from '../../app/navigation/types';
+import { useAppStore } from '../../app/providers/store/useAppStore';
 import { useStrings } from '../../shared/lib/i18n';
 
 const SCREEN = Dimensions.get('window');
@@ -23,6 +24,7 @@ const LOGO_COORDS = [
 export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const strings = useStrings();
+  const onboardingCompleted = useAppStore(state => state.settings.onboardingCompleted === true);
   const textOpacity = useRef(new Animated.Value(0)).current;
   const logoScale = useRef(new Animated.Value(0.75)).current;
 
@@ -45,13 +47,13 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
     ]).start();
 
     const timeout = setTimeout(() => {
-      navigation.replace('MainTabs');
+      navigation.replace(onboardingCompleted ? 'MainTabs' : 'Onboarding');
     }, 1850);
 
     return () => {
       clearTimeout(timeout);
     };
-  }, [logoScale, navigation, textOpacity]);
+  }, [logoScale, navigation, onboardingCompleted, textOpacity]);
 
   const originX = useMemo(() => SCREEN.width / 2 - 16, []);
 

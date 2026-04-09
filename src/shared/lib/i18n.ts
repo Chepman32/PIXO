@@ -2,6 +2,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { I18nManager, NativeModules, Platform } from 'react-native';
 import { useAppStore } from '../../app/providers/store/useAppStore';
 import { AppLocale, AppLocalePreference } from '../../types/models';
+import { getNativeDeviceLocaleIdentifier } from '../api/deviceLocale';
 
 type FormatId = 'png' | 'jpg' | 'webp' | 'heic' | 'bmp' | 'gif' | 'tiff' | 'pdf';
 type QuickActionId = 'heic-jpg' | 'png-jpg' | 'png-webp' | 'jpg-png' | 'batch' | 'favorites';
@@ -41,6 +42,31 @@ interface AppStrings {
   };
   splash: {
     tagline: string;
+  };
+  onboarding: {
+    skip: string;
+    openApp: string;
+    preset: string;
+    pages: {
+      compatibility: {
+        eyebrow: string;
+        title: string;
+        description: string;
+        chips: [string, string];
+      };
+      control: {
+        eyebrow: string;
+        title: string;
+        description: string;
+        chips: [string, string];
+      };
+      flow: {
+        eyebrow: string;
+        title: string;
+        description: string;
+        chips: [string, string];
+      };
+    };
   };
   home: {
     addImage: string;
@@ -158,6 +184,7 @@ interface AppStrings {
     theme: string;
     cacheSize: string;
     clearHistory: string;
+    resetOnboarding: string;
     version: string;
     rateSquoze: string;
     privacyPolicy: string;
@@ -186,8 +213,23 @@ interface AppStrings {
   quickActions: Record<QuickActionId, string>;
 }
 
+let cachedDeviceLocaleIdentifier: string | undefined;
+
+const normalizeLocaleIdentifier = (value?: string | null) => {
+  if (typeof value !== 'string' || value.length === 0) {
+    return undefined;
+  }
+
+  return value.replace('_', '-');
+};
+
 const detectDeviceLocale = () => {
   if (Platform.OS === 'ios') {
+    const nativeLocaleIdentifier = getNativeDeviceLocaleIdentifier();
+    if (nativeLocaleIdentifier) {
+      return nativeLocaleIdentifier;
+    }
+
     const settings = NativeModules.SettingsManager?.settings;
     const preferredLanguages = settings?.AppleLanguages;
     const preferredLanguage =
@@ -195,40 +237,39 @@ const detectDeviceLocale = () => {
         ? preferredLanguages[0]
         : undefined;
 
-    if (typeof preferredLanguage === 'string' && preferredLanguage.length > 0) {
-      return preferredLanguage.replace('_', '-');
+    const normalizedPreferredLanguage = normalizeLocaleIdentifier(preferredLanguage);
+    if (normalizedPreferredLanguage) {
+      return normalizedPreferredLanguage;
     }
 
-    const fallbackLocale = settings?.AppleLocale;
-    if (typeof fallbackLocale === 'string' && fallbackLocale.length > 0) {
-      return fallbackLocale.replace('_', '-');
+    const fallbackLocale = normalizeLocaleIdentifier(settings?.AppleLocale);
+    if (fallbackLocale) {
+      return fallbackLocale;
     }
   }
 
   if (Platform.OS === 'android') {
     const i18nConstants =
       typeof I18nManager.getConstants === 'function' ? I18nManager.getConstants() : undefined;
-    const i18nLocale = i18nConstants?.localeIdentifier;
-    if (typeof i18nLocale === 'string' && i18nLocale.length > 0) {
-      return i18nLocale.replace('_', '-');
+    const i18nLocale = normalizeLocaleIdentifier(i18nConstants?.localeIdentifier);
+    if (i18nLocale) {
+      return i18nLocale;
     }
 
-    const rawLanguage = NativeModules.I18nManager?.localeIdentifier;
-    const preferredLanguage =
-      typeof rawLanguage === 'string' ? rawLanguage.replace('_', '-') : undefined;
-    if (typeof preferredLanguage === 'string' && preferredLanguage.length > 0) {
+    const preferredLanguage = normalizeLocaleIdentifier(NativeModules.I18nManager?.localeIdentifier);
+    if (preferredLanguage) {
       return preferredLanguage;
     }
   }
 
   const i18nConstants =
     typeof I18nManager.getConstants === 'function' ? I18nManager.getConstants() : undefined;
-  const i18nLocale = i18nConstants?.localeIdentifier;
-  if (typeof i18nLocale === 'string' && i18nLocale.length > 0) {
-    return i18nLocale.replace('_', '-');
+  const i18nLocale = normalizeLocaleIdentifier(i18nConstants?.localeIdentifier);
+  if (i18nLocale) {
+    return i18nLocale;
   }
 
-  return Intl.DateTimeFormat().resolvedOptions().locale || 'en';
+  return normalizeLocaleIdentifier(Intl.DateTimeFormat().resolvedOptions().locale) || 'en';
 };
 
 export const SUPPORTED_APP_LOCALES: AppLocale[] = [
@@ -290,8 +331,24 @@ export const resolveAppLocale = (input?: string): AppLocale => {
   return 'en';
 };
 
-export const getAppLocale = (preference: AppLocalePreference = 'system') =>
-  preference === 'system' ? resolveAppLocale(detectDeviceLocale()) : resolveAppLocale(preference);
+const getDetectedDeviceLocale = () => {
+  if (!cachedDeviceLocaleIdentifier) {
+    cachedDeviceLocaleIdentifier = detectDeviceLocale();
+  }
+
+  return cachedDeviceLocaleIdentifier;
+};
+
+export const getSystemLocale = () => resolveAppLocale(getDetectedDeviceLocale());
+
+export const getAppLocale = (
+  preference: AppLocalePreference = 'system',
+  systemLocale: AppLocale = getSystemLocale(),
+) => (preference === 'system' ? systemLocale : resolveAppLocale(preference));
+
+export const __resetDeviceLocaleCacheForTests = () => {
+  cachedDeviceLocaleIdentifier = undefined;
+};
 
 const getCurrentLocalePreference = (): AppLocalePreference =>
   useAppStore.getState().settings.locale ?? 'system';
@@ -332,6 +389,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: 'Image Converter',
+    },
+    onboarding: {
+      skip: 'Skip',
+      openApp: 'Open Squoze',
+      preset: 'Preset',
+      pages: {
+        compatibility: {
+          eyebrow: 'File friction',
+          title: 'When a file gets rejected, you keep moving.',
+          description:
+            'Pull images from wherever they live and turn format drama into something the next app actually accepts.',
+          chips: ['Less back-and-forth', 'Ready to send'],
+        },
+        control: {
+          eyebrow: 'Size anxiety',
+          title: 'Make oversized shots behave before they leave your phone.',
+          description:
+            'Dial the weight down with live feedback and compare the result first, so fast sharing never feels like a gamble.',
+          chips: ['Smaller on purpose', 'Confidence before export'],
+        },
+        flow: {
+          eyebrow: 'Repeat work',
+          title: 'Clear the repetitive part in one satisfying sweep.',
+          description:
+            'Batch the backlog, keep your best setups close, and hand the result straight to the place it needs to go.',
+          chips: ['Do more at once', 'Never hunt twice'],
+        },
+      },
     },
     home: {
       addImage: 'Add Image',
@@ -452,6 +537,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'Theme',
       cacheSize: 'Cache Size',
       clearHistory: 'Clear History',
+      resetOnboarding: 'Reset Onboarding',
       version: 'Version',
       rateSquoze: 'Rate Squoze',
       privacyPolicy: 'Privacy Policy',
@@ -530,6 +616,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: '图片转换工具',
+    },
+    onboarding: {
+      skip: '跳过',
+      openApp: '打开 Squoze',
+      preset: '预设',
+      pages: {
+        compatibility: {
+          eyebrow: '格式卡壳',
+          title: '文件被拒收时，你也不用停下来。',
+          description:
+            '无论图片来自哪里，都能快速转成下一个应用真正愿意接收的格式。',
+          chips: ['少来回折腾', '发出去就能用'],
+        },
+        control: {
+          eyebrow: '体积焦虑',
+          title: '让超大图片在发出去之前先变乖。',
+          description:
+            '边调边看大小变化，再先对比结果，让压缩和分享都不再像碰运气。',
+          chips: ['按你的想法变小', '导出前更有把握'],
+        },
+        flow: {
+          eyebrow: '重复操作',
+          title: '把重复的整理工作，一次顺手清掉。',
+          description:
+            '批量处理积压图片，常用设置随手可用，结果也能直接送到下一步该去的地方。',
+          chips: ['一次处理更多', '不用再反复找'],
+        },
+      },
     },
     home: {
       addImage: '添加图片',
@@ -648,6 +762,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: '主题',
       cacheSize: '缓存大小',
       clearHistory: '清空记录',
+      resetOnboarding: '重置新手引导',
       version: '版本',
       rateSquoze: '给 Squoze 评分',
       privacyPolicy: '隐私政策',
@@ -726,6 +841,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: '画像変換アプリ',
+    },
+    onboarding: {
+      skip: 'スキップ',
+      openApp: 'Squozeを開く',
+      preset: 'プリセット',
+      pages: {
+        compatibility: {
+          eyebrow: '形式のつまずき',
+          title: 'ファイルを拒否されても、その場で止まらない。',
+          description:
+            'どこにある画像でも、次のアプリがちゃんと受け取れる形式へすばやく整えます。',
+          chips: ['やり直しを減らす', 'すぐ送れる'],
+        },
+        control: {
+          eyebrow: 'サイズ不安',
+          title: '重たい写真も、送る前に扱いやすく。',
+          description:
+            'サイズの変化を見ながら調整して、仕上がりも先に比較できるから、共有が賭けになりません。',
+          chips: ['狙って軽くする', '書き出し前に安心'],
+        },
+        flow: {
+          eyebrow: '繰り返し作業',
+          title: '面倒な繰り返しは、気持ちよくまとめて片づける。',
+          description:
+            'たまった画像を一括で処理し、よく使う設定は近くに置いたまま、結果を次の場所へすぐ渡せます。',
+          chips: ['まとめて進める', 'もう探し直さない'],
+        },
+      },
     },
     home: {
       addImage: '画像を追加',
@@ -844,6 +987,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'テーマ',
       cacheSize: 'キャッシュサイズ',
       clearHistory: '履歴を削除',
+      resetOnboarding: 'オンボーディングをリセット',
       version: 'バージョン',
       rateSquoze: 'Squozeを評価',
       privacyPolicy: 'プライバシーポリシー',
@@ -922,6 +1066,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: '이미지 변환 앱',
+    },
+    onboarding: {
+      skip: '건너뛰기',
+      openApp: 'Squoze 열기',
+      preset: '프리셋',
+      pages: {
+        compatibility: {
+          eyebrow: '형식 마찰',
+          title: '파일이 거절돼도 흐름은 끊기지 않습니다.',
+          description:
+            '사진이 어디에 있든, 다음 앱이 바로 받아들이는 형식으로 빠르게 바꿔 줍니다.',
+          chips: ['왔다 갔다 줄이기', '바로 보낼 준비'],
+        },
+        control: {
+          eyebrow: '용량 불안',
+          title: '무거운 사진도 보내기 전에 다루기 쉬워집니다.',
+          description:
+            '크기 변화를 보면서 조절하고 결과도 먼저 비교할 수 있어서, 공유가 감이 아닌 확신이 됩니다.',
+          chips: ['원하는 만큼 줄이기', '내보내기 전 안심'],
+        },
+        flow: {
+          eyebrow: '반복 작업',
+          title: '반복되는 정리는 한 번에 시원하게 끝냅니다.',
+          description:
+            '밀린 이미지를 한꺼번에 처리하고, 자주 쓰는 설정은 가까이에 두고, 결과는 바로 다음 단계로 보냅니다.',
+          chips: ['한 번에 더 많이', '다시 찾지 않기'],
+        },
+      },
     },
     home: {
       addImage: '이미지 추가',
@@ -1040,6 +1212,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: '테마',
       cacheSize: '캐시 크기',
       clearHistory: '기록 지우기',
+      resetOnboarding: '온보딩 초기화',
       version: '버전',
       rateSquoze: 'Squoze 평가하기',
       privacyPolicy: '개인정보 처리방침',
@@ -1118,6 +1291,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: 'Bildkonverter',
+    },
+    onboarding: {
+      skip: 'Überspringen',
+      openApp: 'Squoze öffnen',
+      preset: 'Preset',
+      pages: {
+        compatibility: {
+          eyebrow: 'Formatstress',
+          title: 'Wenn eine Datei abgelehnt wird, bleibst du im Flow.',
+          description:
+            'Hole Bilder von überall her und mache aus Formatproblemen etwas, das die nächste App wirklich akzeptiert.',
+          chips: ['Weniger Hin und Her', 'Sofort versandbereit'],
+        },
+        control: {
+          eyebrow: 'Größenstress',
+          title: 'Zu große Bilder werden handlich, bevor sie dein Handy verlassen.',
+          description:
+            'Passe die Größe mit Live-Feedback an und vergleiche das Ergebnis vorher, damit Teilen nicht zum Glücksspiel wird.',
+          chips: ['Gezielt kleiner', 'Sicher vor dem Export'],
+        },
+        flow: {
+          eyebrow: 'Wiederholungen',
+          title: 'Den nervigen Wiederholungsteil erledigst du in einem Zug.',
+          description:
+            'Verarbeite Stapel, halte deine besten Einstellungen griffbereit und schicke das Ergebnis direkt an den nächsten Ort.',
+          chips: ['Mehr auf einmal', 'Nie wieder neu suchen'],
+        },
+      },
     },
     home: {
       addImage: 'Bild hinzufügen',
@@ -1237,6 +1438,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'Design',
       cacheSize: 'Cache-Größe',
       clearHistory: 'Verlauf löschen',
+      resetOnboarding: 'Onboarding zurücksetzen',
       version: 'Version',
       rateSquoze: 'Squoze bewerten',
       privacyPolicy: 'Datenschutz',
@@ -1315,6 +1517,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: "Convertisseur d'images",
+    },
+    onboarding: {
+      skip: 'Passer',
+      openApp: 'Ouvrir Squoze',
+      preset: 'Preset',
+      pages: {
+        compatibility: {
+          eyebrow: 'Blocage de format',
+          title: 'Quand un fichier est refusé, vous continuez quand même.',
+          description:
+            'Récupérez vos images où qu’elles soient et transformez le casse-tête des formats en quelque chose que l’app suivante accepte vraiment.',
+          chips: ['Moins d’allers-retours', 'Prêt à envoyer'],
+        },
+        control: {
+          eyebrow: 'Stress de taille',
+          title: 'Les images trop lourdes deviennent faciles à partager avant de quitter votre téléphone.',
+          description:
+            'Ajustez avec un retour instantané et comparez le rendu avant l’export, pour partager sans pari.',
+          chips: ['Réduire avec intention', 'Confiance avant export'],
+        },
+        flow: {
+          eyebrow: 'Tâches répétitives',
+          title: 'La partie répétitive se règle d’un seul geste satisfaisant.',
+          description:
+            'Traitez vos lots, gardez vos meilleurs réglages à portée de main et envoyez le résultat directement là où il doit aller.',
+          chips: ['Faire plus d’un coup', 'Ne plus jamais re-chercher'],
+        },
+      },
     },
     home: {
       addImage: 'Ajouter une image',
@@ -1434,6 +1664,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'Thème',
       cacheSize: 'Taille du cache',
       clearHistory: "Effacer l'historique",
+      resetOnboarding: "Réinitialiser l'introduction",
       version: 'Version',
       rateSquoze: 'Noter Squoze',
       privacyPolicy: 'Politique de confidentialité',
@@ -1512,6 +1743,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: 'Convertidor de imágenes',
+    },
+    onboarding: {
+      skip: 'Omitir',
+      openApp: 'Abrir Squoze',
+      preset: 'Ajuste',
+      pages: {
+        compatibility: {
+          eyebrow: 'Choque de formatos',
+          title: 'Si un archivo no pasa, tú no te detienes.',
+          description:
+            'Toma imágenes de donde estén y conviértelas en algo que la siguiente app sí reciba sin drama.',
+          chips: ['Menos ida y vuelta', 'Listo para enviar'],
+        },
+        control: {
+          eyebrow: 'Ansiedad por el tamaño',
+          title: 'Las fotos pesadas se portan mejor antes de salir del teléfono.',
+          description:
+            'Ajusta el tamaño con feedback en vivo y compara el resultado antes, para compartir sin adivinar.',
+          chips: ['Más ligero a propósito', 'Seguridad antes de exportar'],
+        },
+        flow: {
+          eyebrow: 'Trabajo repetido',
+          title: 'La parte repetitiva se resuelve de una sola pasada.',
+          description:
+            'Procesa lotes, deja cerca tus ajustes favoritos y manda el resultado directo al siguiente paso.',
+          chips: ['Más en menos tiempo', 'Sin volver a buscar'],
+        },
+      },
     },
     home: {
       addImage: 'Agregar imagen',
@@ -1631,6 +1890,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'Tema',
       cacheSize: 'Tamaño de caché',
       clearHistory: 'Borrar historial',
+      resetOnboarding: 'Reiniciar introducción',
       version: 'Versión',
       rateSquoze: 'Calificar Squoze',
       privacyPolicy: 'Aviso de privacidad',
@@ -1709,6 +1969,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: 'Conversor de imagens',
+    },
+    onboarding: {
+      skip: 'Pular',
+      openApp: 'Abrir o Squoze',
+      preset: 'Preset',
+      pages: {
+        compatibility: {
+          eyebrow: 'Atrito de formato',
+          title: 'Quando um arquivo é recusado, seu ritmo continua.',
+          description:
+            'Pegue imagens de onde estiverem e transforme a dor de cabeça dos formatos em algo que o próximo app realmente aceite.',
+          chips: ['Menos vai e volta', 'Pronto para enviar'],
+        },
+        control: {
+          eyebrow: 'Ansiedade com tamanho',
+          title: 'Fotos pesadas ficam comportadas antes mesmo de sair do celular.',
+          description:
+            'Ajuste com feedback ao vivo e compare o resultado antes, para compartilhar sem depender da sorte.',
+          chips: ['Menor com intenção', 'Confiança antes de exportar'],
+        },
+        flow: {
+          eyebrow: 'Trabalho repetido',
+          title: 'A parte repetitiva some em uma passada só.',
+          description:
+            'Processe lotes, mantenha seus melhores ajustes por perto e envie o resultado direto para o próximo passo.',
+          chips: ['Mais de uma vez só', 'Sem procurar de novo'],
+        },
+      },
     },
     home: {
       addImage: 'Adicionar imagem',
@@ -1827,6 +2115,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'Tema',
       cacheSize: 'Tamanho do cache',
       clearHistory: 'Limpar histórico',
+      resetOnboarding: 'Redefinir introdução',
       version: 'Versão',
       rateSquoze: 'Avaliar Squoze',
       privacyPolicy: 'Política de privacidade',
@@ -1905,6 +2194,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: 'محول الصور',
+    },
+    onboarding: {
+      skip: 'تخطي',
+      openApp: 'افتح Squoze',
+      preset: 'إعداد',
+      pages: {
+        compatibility: {
+          eyebrow: 'تعطّل الصيغة',
+          title: 'عندما يُرفض الملف، لا تتوقف أنت.',
+          description:
+            'اجلب الصور من أي مكان وحوّل مشكلة الصيغة إلى شيء يقبله التطبيق التالي فورًا.',
+          chips: ['تنقل أقل', 'جاهز للإرسال'],
+        },
+        control: {
+          eyebrow: 'قلق الحجم',
+          title: 'اجعل الصور الثقيلة أسهل قبل أن تغادر هاتفك.',
+          description:
+            'اضبط الحجم مع معاينة مباشرة وقارن النتيجة أولًا، حتى لا يصبح التصدير أو المشاركة مجرد تخمين.',
+          chips: ['أصغر عن قصد', 'ثقة قبل التصدير'],
+        },
+        flow: {
+          eyebrow: 'العمل المتكرر',
+          title: 'أنهِ الجزء المتكرر دفعة واحدة وبشكل مُرضٍ.',
+          description:
+            'عالِج الصور دفعة واحدة، واحتفظ بإعداداتك المفضلة قريبًا، وأرسل النتيجة مباشرة إلى الخطوة التالية.',
+          chips: ['أنجز أكثر مرة واحدة', 'لا تبحث من جديد'],
+        },
+      },
     },
     home: {
       addImage: 'إضافة صورة',
@@ -2023,6 +2340,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'المظهر',
       cacheSize: 'حجم ذاكرة التخزين المؤقت',
       clearHistory: 'مسح السجل',
+      resetOnboarding: 'إعادة ضبط الإعداد',
       version: 'الإصدار',
       rateSquoze: 'قيّم Squoze',
       privacyPolicy: 'سياسة الخصوصية',
@@ -2101,6 +2419,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: 'Конвертер изображений',
+    },
+    onboarding: {
+      skip: 'Пропустить',
+      openApp: 'Открыть Squoze',
+      preset: 'Пресет',
+      pages: {
+        compatibility: {
+          eyebrow: 'Трение форматов',
+          title: 'Если файл не принимают, вы всё равно идёте дальше.',
+          description:
+            'Берите изображения откуда угодно и быстро превращайте проблему формата в то, что следующее приложение спокойно примет.',
+          chips: ['Меньше лишних шагов', 'Можно сразу отправлять'],
+        },
+        control: {
+          eyebrow: 'Тревога из-за размера',
+          title: 'Слишком тяжёлые фото становятся удобными ещё до отправки.',
+          description:
+            'Подстраивайте размер с живой оценкой и сравнивайте результат заранее, чтобы делиться без слепых догадок.',
+          chips: ['Уменьшать осознанно', 'Уверенность перед экспортом'],
+        },
+        flow: {
+          eyebrow: 'Повторяющиеся действия',
+          title: 'Рутинную часть можно закрыть одним приятным проходом.',
+          description:
+            'Обрабатывайте пачки, держите лучшие настройки под рукой и сразу отправляйте результат туда, где он нужен дальше.',
+          chips: ['Больше за один раз', 'Не искать заново'],
+        },
+      },
     },
     home: {
       addImage: 'Добавить изображение',
@@ -2221,6 +2567,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'Тема',
       cacheSize: 'Размер кэша',
       clearHistory: 'Очистить историю',
+      resetOnboarding: 'Сбросить знакомство с приложением',
       version: 'Версия',
       rateSquoze: 'Оценить Squoze',
       privacyPolicy: 'Политика конфиденциальности',
@@ -2299,6 +2646,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: 'Convertitore immagini',
+    },
+    onboarding: {
+      skip: 'Salta',
+      openApp: 'Apri Squoze',
+      preset: 'Preset',
+      pages: {
+        compatibility: {
+          eyebrow: 'Attrito di formato',
+          title: 'Quando un file viene rifiutato, tu non ti fermi.',
+          description:
+            'Prendi immagini da ovunque si trovino e trasformi il caos dei formati in qualcosa che la prossima app accetta davvero.',
+          chips: ['Meno avanti e indietro', 'Pronto da inviare'],
+        },
+        control: {
+          eyebrow: 'Ansia da dimensione',
+          title: 'Le immagini troppo pesanti diventano gestibili prima ancora di uscire dal telefono.',
+          description:
+            'Regola il peso con feedback in tempo reale e confronta prima il risultato, così condividere non è più un azzardo.',
+          chips: ['Più piccolo con criterio', 'Sicurezza prima dell’export'],
+        },
+        flow: {
+          eyebrow: 'Lavoro ripetitivo',
+          title: 'La parte ripetitiva si risolve in un solo colpo soddisfacente.',
+          description:
+            'Gestisci i batch, tieni vicine le impostazioni migliori e manda il risultato direttamente dove serve dopo.',
+          chips: ['Di più in una volta', 'Mai più cercare due volte'],
+        },
+      },
     },
     home: {
       addImage: 'Aggiungi immagine',
@@ -2417,6 +2792,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'Tema',
       cacheSize: 'Dimensione cache',
       clearHistory: 'Cancella cronologia',
+      resetOnboarding: 'Reimposta introduzione',
       version: 'Versione',
       rateSquoze: 'Valuta Squoze',
       privacyPolicy: 'Privacy',
@@ -2495,6 +2871,34 @@ const translations: Record<AppLocale, AppStrings> = {
     },
     splash: {
       tagline: 'इमेज कन्वर्टर',
+    },
+    onboarding: {
+      skip: 'छोड़ें',
+      openApp: 'Squoze खोलें',
+      preset: 'प्रीसेट',
+      pages: {
+        compatibility: {
+          eyebrow: 'फ़ॉर्मैट अटकन',
+          title: 'फ़ाइल रिजेक्ट हो जाए, तब भी आपका काम नहीं रुकता.',
+          description:
+            'जहाँ भी तस्वीरें हों, उन्हें तुरंत ऐसे फ़ॉर्मैट में बदलें जिसे अगला ऐप बिना झंझट स्वीकार कर ले.',
+          chips: ['कम आगे-पीछे', 'तुरंत भेजने लायक'],
+        },
+        control: {
+          eyebrow: 'साइज़ की चिंता',
+          title: 'भारी तस्वीरें फोन से बाहर जाने से पहले संभल जाती हैं.',
+          description:
+            'लाइव फ़ीडबैक के साथ साइज़ एडजस्ट करें और पहले रिज़ल्ट तुलना करें, ताकि शेयर करना अंदाज़े पर न टिका रहे.',
+          chips: ['सोच-समझकर छोटा', 'एक्सपोर्ट से पहले भरोसा'],
+        },
+        flow: {
+          eyebrow: 'बार-बार का काम',
+          title: 'दोहराया जाने वाला हिस्सा एक संतोषजनक स्वाइप में खत्म करें.',
+          description:
+            'बैच में काम करें, अपनी पसंदीदा सेटिंग्स पास रखें और रिज़ल्ट को सीधे अगले कदम तक पहुँचाएँ.',
+          chips: ['एक साथ ज़्यादा', 'फिर से ढूँढना नहीं'],
+        },
+      },
     },
     home: {
       addImage: 'इमेज जोड़ें',
@@ -2613,6 +3017,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'थीम',
       cacheSize: 'कैश साइज़',
       clearHistory: 'हिस्ट्री साफ़ करें',
+      resetOnboarding: 'ऑनबोर्डिंग रीसेट करें',
       version: 'वर्ज़न',
       rateSquoze: 'Squoze को रेट करें',
       privacyPolicy: 'प्राइवेसी पॉलिसी',
@@ -2690,7 +3095,35 @@ const translations: Record<AppLocale, AppStrings> = {
       none: 'Wala',
     },
     splash: {
-      tagline: 'Image converter',
+      tagline: 'Pang-convert ng image',
+    },
+    onboarding: {
+      skip: 'Laktawan',
+      openApp: 'Buksan ang Squoze',
+      preset: 'Preset',
+      pages: {
+        compatibility: {
+          eyebrow: 'Sabit sa format',
+          title: 'Kapag ayaw tanggapin ang file, tuloy pa rin ang galaw mo.',
+          description:
+            'Kunin ang images saan man sila naroon at gawing format na tatanggapin agad ng susunod na app.',
+          chips: ['Mas kaunting pabalik-balik', 'Handa nang ipadala'],
+        },
+        control: {
+          eyebrow: 'Stress sa laki',
+          title: 'Ang mabibigat na larawan ay umaayos bago pa lumabas sa phone mo.',
+          description:
+            'Ayusin ang laki gamit ang live feedback at ikumpara muna ang resulta, para hindi hulaan ang pag-share.',
+          chips: ['Mas maliit nang sinadya', 'Kampante bago mag-export'],
+        },
+        flow: {
+          eyebrow: 'Paulit-ulit na trabaho',
+          title: 'Tapusin ang paulit-ulit na bahagi sa isang satisfying na pasada.',
+          description:
+            'Mag-batch ng backlog, panatilihing malapit ang pinakamahusay mong settings, at ipadala agad ang resulta sa susunod na hakbang.',
+          chips: ['Mas marami sa isang go', 'Hindi na maghahanap ulit'],
+        },
+      },
     },
     home: {
       addImage: 'Magdagdag ng image',
@@ -2809,6 +3242,7 @@ const translations: Record<AppLocale, AppStrings> = {
       theme: 'Theme',
       cacheSize: 'Laki ng cache',
       clearHistory: 'Burahin ang history',
+      resetOnboarding: 'I-reset ang onboarding',
       version: 'Version',
       rateSquoze: 'I-rate ang Squoze',
       privacyPolicy: 'Privacy Policy',
@@ -2856,31 +3290,36 @@ const translations: Record<AppLocale, AppStrings> = {
 
 export const getStrings = (
   localePreference: string | AppLocalePreference = getCurrentLocalePreference(),
+  systemLocale: AppLocale = getSystemLocale(),
 ) =>
-  translations[getAppLocale(localePreference as AppLocalePreference)];
+  translations[getAppLocale(localePreference as AppLocalePreference, systemLocale)];
 
 type I18nContextValue = {
   localePreference: AppLocalePreference;
+  systemLocale: AppLocale;
   locale: AppLocale;
   strings: AppStrings;
 };
 
 const I18nContext = createContext<I18nContextValue>({
   localePreference: 'system',
+  systemLocale: 'en',
   locale: 'en',
   strings: translations.en,
 });
 
 export const I18nProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const localePreference = useAppStore(state => state.settings.locale ?? 'system');
+  const systemLocale = getSystemLocale();
+  const locale = getAppLocale(localePreference, systemLocale);
   const value = useMemo<I18nContextValue>(() => {
-    const locale = getAppLocale(localePreference);
     return {
       localePreference,
+      systemLocale,
       locale,
       strings: translations[locale],
     };
-  }, [localePreference]);
+  }, [locale, localePreference, systemLocale]);
 
   return React.createElement(I18nContext.Provider, { value }, children);
 };
@@ -2892,12 +3331,14 @@ export const useLocale = () => useContext(I18nContext);
 export const getFormatDescription = (
   format: FormatId,
   localePreference: string | AppLocalePreference = getCurrentLocalePreference(),
-) => getStrings(localePreference).formatDescriptions[format];
+  systemLocale: AppLocale = getSystemLocale(),
+) => getStrings(localePreference, systemLocale).formatDescriptions[format];
 
 export const getQuickActionLabel = (
   id: QuickActionId,
   localePreference: string | AppLocalePreference = getCurrentLocalePreference(),
-) => getStrings(localePreference).quickActions[id];
+  systemLocale: AppLocale = getSystemLocale(),
+) => getStrings(localePreference, systemLocale).quickActions[id];
 
 const languageSettingLabels: Record<AppLocale, string> = {
   en: 'Language',
@@ -2948,12 +3389,12 @@ const localeNativeNames: Record<AppLocale, string> = {
 };
 
 export const getLanguageSettingLabel = (
-  localePreference: string | AppLocalePreference = getCurrentLocalePreference(),
+  localePreference: AppLocalePreference = getCurrentLocalePreference(),
 ) =>
   languageSettingLabels[getAppLocale(localePreference)];
 
 export const getSystemLanguageLabel = (
-  localePreference: string | AppLocalePreference = getCurrentLocalePreference(),
+  localePreference: AppLocalePreference = getCurrentLocalePreference(),
 ) =>
   systemLanguageLabels[getAppLocale(localePreference)];
 
@@ -2962,9 +3403,14 @@ export const getLocaleNativeName = (locale: AppLocale) => localeNativeNames[loca
 export const formatLocalizedNumber = (
   value: number,
   localePreference: string | AppLocalePreference = getCurrentLocalePreference(),
-) => new Intl.NumberFormat(getAppLocale(localePreference as AppLocalePreference)).format(value);
+  systemLocale: AppLocale = getSystemLocale(),
+) =>
+  new Intl.NumberFormat(
+    getAppLocale(localePreference as AppLocalePreference, systemLocale),
+  ).format(value);
 
 export const formatLocalizedPercent = (
   value: number,
   localePreference: string | AppLocalePreference = getCurrentLocalePreference(),
-) => `${formatLocalizedNumber(Math.abs(Math.round(value)), localePreference)}%`;
+  systemLocale: AppLocale = getSystemLocale(),
+) => `${formatLocalizedNumber(Math.abs(Math.round(value)), localePreference, systemLocale)}%`;

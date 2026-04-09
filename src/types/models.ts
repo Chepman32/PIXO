@@ -103,6 +103,7 @@ export interface AppSettings {
   preserveMetadata: boolean;
   autoSaveToPhotos: boolean;
   hapticsEnabled: boolean;
+  onboardingCompleted?: boolean;
   locale: AppLocalePreference;
   theme: 'system' | 'light' | 'dark';
   appIcon: 'default' | 'dark' | 'minimal';

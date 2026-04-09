@@ -12,6 +12,8 @@
 		13E1F236E6640063A168FB49 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		3AFAB861A54C4B30B82460A1 /* SquozeImageConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AFAB860A54C4B30B82460A1 /* SquozeImageConverter.swift */; };
 		3AFAB863A54C4B30B82460A1 /* SquozeImageConverterBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AFAB862A54C4B30B82460A1 /* SquozeImageConverterBridge.m */; };
+		84D7B9412EF2249800A1B001 /* SquozeDeviceLocale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D7B9432EF2249800A1B001 /* SquozeDeviceLocale.swift */; };
+		84D7B9422EF2249800A1B001 /* SquozeDeviceLocaleBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D7B9442EF2249800A1B001 /* SquozeDeviceLocaleBridge.m */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -28,6 +30,8 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-Squoze.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Squoze.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Squoze/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Squoze/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		84D7B9432EF2249800A1B001 /* SquozeDeviceLocale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SquozeDeviceLocale.swift; path = Squoze/SquozeDeviceLocale.swift; sourceTree = "<group>"; };
+		84D7B9442EF2249800A1B001 /* SquozeDeviceLocaleBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SquozeDeviceLocaleBridge.m; path = Squoze/SquozeDeviceLocaleBridge.m; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -48,6 +52,8 @@
 			children = (
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				84D7B9432EF2249800A1B001 /* SquozeDeviceLocale.swift */,
+				84D7B9442EF2249800A1B001 /* SquozeDeviceLocaleBridge.m */,
 				3AFAB860A54C4B30B82460A1 /* SquozeImageConverter.swift */,
 				3AFAB862A54C4B30B82460A1 /* SquozeImageConverterBridge.m */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -197,9 +203,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Squoze/Pods-Squoze-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Squoze/Pods-Squoze-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -236,9 +246,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Squoze/Pods-Squoze-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Squoze/Pods-Squoze-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -252,6 +266,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84D7B9422EF2249800A1B001 /* SquozeDeviceLocaleBridge.m in Sources */,
+				84D7B9412EF2249800A1B001 /* SquozeDeviceLocale.swift in Sources */,
 				3AFAB863A54C4B30B82460A1 /* SquozeImageConverterBridge.m in Sources */,
 				3AFAB861A54C4B30B82460A1 /* SquozeImageConverter.swift in Sources */,
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
@@ -269,7 +285,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = RUYUP6W3YT;
 				ENABLE_BITCODE = NO;
@@ -305,7 +321,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = RUYUP6W3YT;
 				INFOPLIST_FILE = Squoze/Info.plist;

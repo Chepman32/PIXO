@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 import { TabNavigator } from './TabNavigator';
 import { SplashScreen } from '../../pages/splash/SplashScreen';
+import { OnboardingScreen } from '../../pages/onboarding/OnboardingScreen';
 import { FormatSelectionScreen } from '../../pages/format-selection/FormatSelectionScreen';
 import { QualitySettingsScreen } from '../../pages/quality/QualitySettingsScreen';
 import { ConversionProgressScreen } from '../../pages/progress/ConversionProgressScreen';
@@ -39,6 +40,11 @@ export const RootNavigator: React.FC = () => {
         }}
       >
         <Stack.Screen component={SplashScreen} name="Splash" />
+        <Stack.Screen
+          component={OnboardingScreen}
+          name="Onboarding"
+          options={{ animation: 'fade_from_bottom' }}
+        />
         <Stack.Screen component={TabNavigator} name="MainTabs" />
         <Stack.Screen component={FormatSelectionScreen} name="FormatSelection" />
         <Stack.Screen component={QualitySettingsScreen} name="QualitySettings" />

@@ -14,6 +14,7 @@ export type MainTabParamList = {
 
 export type RootStackParamList = {
   Splash: undefined;
+  Onboarding: undefined;
   MainTabs: undefined;
   FormatSelection: {
     images: ImageAsset[];

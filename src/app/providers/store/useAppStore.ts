@@ -38,6 +38,7 @@ const defaultSettings: AppSettings = {
   preserveMetadata: true,
   autoSaveToPhotos: false,
   hapticsEnabled: true,
+  onboardingCompleted: false,
   locale: 'system',
   theme: 'system',
   appIcon: 'default',

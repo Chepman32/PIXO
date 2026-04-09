@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { prepareAppFilesystem } from '../../shared/lib/bootstrap';
 import { useTheme } from './ThemeProvider';
@@ -9,6 +9,16 @@ export const AppBootstrap: React.FC<React.PropsWithChildren> = ({ children }) =>
   const initialized = useAppStore(state => state.initialized);
   const setInitialized = useAppStore(state => state.setInitialized);
   const theme = useTheme();
+  const [storeHydrated, setStoreHydrated] = useState(() => useAppStore.persist.hasHydrated());
+
+  useEffect(() => {
+    if (storeHydrated) return;
+    const unsub = useAppStore.persist.onFinishHydration(() => setStoreHydrated(true));
+    if (useAppStore.persist.hasHydrated()) {
+      setStoreHydrated(true);
+    }
+    return unsub;
+  }, [storeHydrated]);
 
   useEffect(() => {
     let mounted = true;
@@ -30,7 +40,7 @@ export const AppBootstrap: React.FC<React.PropsWithChildren> = ({ children }) =>
     };
   }, [setInitialized]);
 
-  if (!initialized) {
+  if (!initialized || !storeHydrated) {
     return (
       <View style={[styles.loader, { backgroundColor: theme.colors.background }]}> 
         <ActivityIndicator color={theme.colors.primary} size="large" />
