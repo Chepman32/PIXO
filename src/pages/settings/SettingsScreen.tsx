@@ -130,6 +130,7 @@ export const SettingsScreen: React.FC = () => {
   const settings = useAppStore(state => state.settings);
   const currentLocalePreference = settings.locale ?? 'system';
   const history = useAppStore(state => state.history);
+  const presets = useAppStore(state => state.presets);
   const setSettings = useAppStore(state => state.setSettings);
   const clearHistory = useAppStore(state => state.clearHistory);
 
@@ -139,6 +140,12 @@ export const SettingsScreen: React.FC = () => {
   const [themeModalVisible, setThemeModalVisible] = useState(false);
   const [qualityModalVisible, setQualityModalVisible] = useState(false);
   const [qualityDraft, setQualityDraft] = useState(settings.defaultQuality);
+  const managePresetsLabel = strings.settings.managePresets ?? 'Manage Presets';
+  const visiblePresetsLabel =
+    strings.settings.visiblePresets?.(
+      presets.filter(item => !item.hidden).length,
+      presets.length,
+    ) ?? `${presets.filter(item => !item.hidden).length} of ${presets.length} visible`;
 
   useEffect(() => {
     const loadCacheSize = async () => {
@@ -237,6 +244,11 @@ export const SettingsScreen: React.FC = () => {
             () => setFormatModalVisible(true),
           )}
           {settingRow(strings.settings.defaultQuality, `${settings.defaultQuality}%`, () => setQualityModalVisible(true))}
+          {settingRow(
+            managePresetsLabel,
+            visiblePresetsLabel,
+            () => navigation.navigate('PresetManagement'),
+          )}
           {toggleRow(strings.settings.preserveMetadata, settings.preserveMetadata, value =>
             setSettings({ preserveMetadata: value }),
           )}

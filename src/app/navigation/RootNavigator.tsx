@@ -10,6 +10,7 @@ import { QualitySettingsScreen } from '../../pages/quality/QualitySettingsScreen
 import { ConversionProgressScreen } from '../../pages/progress/ConversionProgressScreen';
 import { ConversionCompleteScreen } from '../../pages/complete/ConversionCompleteScreen';
 import { PreviewScreen } from '../../pages/preview/PreviewScreen';
+import { PresetManagementScreen } from '../../pages/presets/PresetManagementScreen';
 import { useTheme } from '../providers/ThemeProvider';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -51,6 +52,7 @@ export const RootNavigator: React.FC = () => {
         <Stack.Screen component={ConversionProgressScreen} name="ConversionProgress" />
         <Stack.Screen component={ConversionCompleteScreen} name="ConversionComplete" />
         <Stack.Screen component={PreviewScreen} name="Preview" />
+        <Stack.Screen component={PresetManagementScreen} name="PresetManagement" />
       </Stack.Navigator>
     </NavigationContainer>
   );

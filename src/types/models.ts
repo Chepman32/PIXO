@@ -94,6 +94,7 @@ export interface ConversionPreset {
   to: SupportedOutputFormat;
   options: ConversionOptions;
   system: boolean;
+  hidden?: boolean;
   createdAt: string;
 }
 

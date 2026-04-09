@@ -38,4 +38,5 @@ export type RootStackParamList = {
     result: ConversionResult;
     compareUri?: string;
   };
+  PresetManagement: undefined;
 };

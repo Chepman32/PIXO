@@ -38,7 +38,10 @@ export const HomeScreen: React.FC = () => {
     () => QUICK_ACTIONS.filter(action => action.type !== 'preset'),
     [],
   );
-  const presetItems = useMemo(() => presets.slice(0, 10), [presets]);
+  const presetItems = useMemo(
+    () => presets.filter(item => !item.hidden).slice(0, 10),
+    [presets],
+  );
 
   const openPicker = (target?: SupportedOutputFormat, options?: Partial<ConversionOptions>) => {
     setPendingPreset({ target, options });
@@ -77,38 +80,42 @@ export const HomeScreen: React.FC = () => {
           </LinearGradient>
         </Pressable>
 
-        <View style={styles.sectionHeader}>
-          <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.onboarding.preset}</Text>
-        </View>
+        {presetItems.length ? (
+          <>
+            <View style={styles.sectionHeader}>
+              <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.onboarding.preset}</Text>
+            </View>
 
-        <ScrollView
-          contentContainerStyle={styles.quickActions}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        >
-          {presetItems.map(preset => (
-            <Pressable
-              key={preset.id}
-              onPress={() => openPicker(preset.to, preset.options)}
-              style={({ pressed }) => [
-                styles.quickPill,
-                {
-                  backgroundColor: theme.colors.surfaceSecondary,
-                  borderColor: theme.colors.border,
-                  opacity: pressed ? 0.88 : 1,
-                },
-              ]}
+            <ScrollView
+              contentContainerStyle={styles.quickActions}
+              horizontal
+              showsHorizontalScrollIndicator={false}
             >
-              <ArrowsLeftRight color={theme.colors.primary} size={18} />
-              <Text
-                numberOfLines={1}
-                style={[theme.typography.labelMedium, { color: theme.colors.textPrimary, maxWidth: 180 }]}
-              >
-                {preset.name}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
+              {presetItems.map(preset => (
+                <Pressable
+                  key={preset.id}
+                  onPress={() => openPicker(preset.to, preset.options)}
+                  style={({ pressed }) => [
+                    styles.quickPill,
+                    {
+                      backgroundColor: theme.colors.surfaceSecondary,
+                      borderColor: theme.colors.border,
+                      opacity: pressed ? 0.88 : 1,
+                    },
+                  ]}
+                >
+                  <ArrowsLeftRight color={theme.colors.primary} size={18} />
+                  <Text
+                    numberOfLines={1}
+                    style={[theme.typography.labelMedium, { color: theme.colors.textPrimary, maxWidth: 180 }]}
+                  >
+                    {preset.name}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
 
         <View style={styles.sectionHeader}>
           <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.home.quickActions}</Text>

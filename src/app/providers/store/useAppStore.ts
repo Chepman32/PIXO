@@ -29,6 +29,8 @@ interface AppState {
   toggleFavorite: (id: string) => void;
   upsertPreset: (preset: ConversionPreset) => void;
   removePreset: (id: string) => void;
+  movePreset: (id: string, direction: 'up' | 'down') => void;
+  setPresetHidden: (id: string, hidden: boolean) => void;
   setRecentError: (message?: string) => void;
 }
 
@@ -58,13 +60,40 @@ const mmkvStorage = {
   },
 };
 
+const normalizePresets = (presets?: ConversionPreset[]) => {
+  const incoming = Array.isArray(presets) ? presets : [];
+  const defaultPresetMap = new Map(defaultPresets.map(item => [item.id, item] as const));
+  const seen = new Set<string>();
+  const normalized = incoming.flatMap(item => {
+    if (seen.has(item.id)) {
+      return [];
+    }
+    seen.add(item.id);
+
+    const normalizedItem = item.system
+      ? {
+          ...(defaultPresetMap.get(item.id) ?? item),
+          ...item,
+          hidden: item.hidden ?? false,
+        }
+      : { ...item, hidden: item.hidden ?? false };
+
+    return [normalizedItem];
+  });
+  const missingSystemPresets = defaultPresets
+    .filter(item => !seen.has(item.id))
+    .map(item => ({ ...item, hidden: false }));
+
+  return [...normalized, ...missingSystemPresets];
+};
+
 export const useAppStore = create<AppState>()(
   persist(
     set => ({
       initialized: false,
       settings: defaultSettings,
       history: [],
-      presets: defaultPresets,
+      presets: normalizePresets(defaultPresets),
       conversionResults: [],
       setInitialized: initialized => set({ initialized }),
       setSettings: patch =>
@@ -108,11 +137,40 @@ export const useAppStore = create<AppState>()(
         set(state => ({
           presets: state.presets.filter(item => item.id !== id || item.system),
         })),
+      movePreset: (id, direction) =>
+        set(state => {
+          const index = state.presets.findIndex(item => item.id === id);
+          if (index < 0) {
+            return state;
+          }
+
+          const targetIndex = direction === 'up' ? index - 1 : index + 1;
+          if (targetIndex < 0 || targetIndex >= state.presets.length) {
+            return state;
+          }
+
+          const presets = [...state.presets];
+          const [item] = presets.splice(index, 1);
+          presets.splice(targetIndex, 0, item);
+          return { presets };
+        }),
+      setPresetHidden: (id, hidden) =>
+        set(state => ({
+          presets: state.presets.map(item => (item.id === id ? { ...item, hidden } : item)),
+        })),
       setRecentError: recentError => set({ recentError }),
     }),
     {
       name: 'squoze-app-state',
       storage: createJSONStorage(() => mmkvStorage),
+      merge: (persistedState, currentState) => {
+        const typedState = (persistedState as Partial<AppState> | undefined) ?? {};
+        return {
+          ...currentState,
+          ...typedState,
+          presets: normalizePresets(typedState.presets),
+        };
+      },
       partialize: state => ({
         settings: state.settings,
         history: state.history.slice(0, 500),

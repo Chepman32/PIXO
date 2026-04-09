@@ -183,6 +183,16 @@ interface AppStrings {
     haptics?: string;
     theme: string;
     cacheSize: string;
+    managePresets?: string;
+    visiblePresets?: (visible: number, total: number) => string;
+    predefinedPreset?: string;
+    customPreset?: string;
+    movePresetUp?: string;
+    movePresetDown?: string;
+    hidePreset?: string;
+    showPreset?: string;
+    removePreset?: string;
+    removePresetBody?: string;
     clearHistory: string;
     resetOnboarding: string;
     version: string;
@@ -536,6 +546,16 @@ const translations: Record<AppLocale, AppStrings> = {
       haptics: 'Haptics',
       theme: 'Theme',
       cacheSize: 'Cache Size',
+      managePresets: 'Manage Presets',
+      visiblePresets: (visible, total) => `${visible} of ${total} visible`,
+      predefinedPreset: 'Predefined',
+      customPreset: 'Custom',
+      movePresetUp: 'Move preset up',
+      movePresetDown: 'Move preset down',
+      hidePreset: 'Hide',
+      showPreset: 'Show',
+      removePreset: 'Remove',
+      removePresetBody: 'Delete this custom preset?',
       clearHistory: 'Clear History',
       resetOnboarding: 'Reset Onboarding',
       version: 'Version',
@@ -2566,6 +2586,16 @@ const translations: Record<AppLocale, AppStrings> = {
       haptics: 'Тактильный отклик',
       theme: 'Тема',
       cacheSize: 'Размер кэша',
+      managePresets: 'Управление пресетами',
+      visiblePresets: (visible, total) => `Показано ${visible} из ${total}`,
+      predefinedPreset: 'Встроенный',
+      customPreset: 'Свой',
+      movePresetUp: 'Переместить пресет вверх',
+      movePresetDown: 'Переместить пресет вниз',
+      hidePreset: 'Скрыть',
+      showPreset: 'Показать',
+      removePreset: 'Удалить',
+      removePresetBody: 'Удалить этот пользовательский пресет?',
       clearHistory: 'Очистить историю',
       resetOnboarding: 'Сбросить знакомство с приложением',
       version: 'Версия',
