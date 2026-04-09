@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CaretDown } from 'phosphor-react-native';
+import { useAppStore } from '../../app/providers/store/useAppStore';
+import { useToast } from '../../app/providers/ToastProvider';
 import { AppHeader } from '../../shared/ui/AppHeader';
 import { Screen } from '../../shared/ui/Screen';
 import { RootStackParamList } from '../../app/navigation/types';
@@ -19,7 +21,9 @@ import { useTheme } from '../../app/providers/ThemeProvider';
 import { QualitySlider } from '../../widgets/quality-slider/QualitySlider';
 import { Button } from '../../shared/ui/Button';
 import { SquozeImageConverter } from '../../shared/api/squozeImageConverter';
+import { FORMAT_META } from '../../shared/config/formats';
 import { getReadableSize } from '../../shared/lib/file';
+import { createId } from '../../shared/lib/id';
 import { ConversionOptions } from '../../types/models';
 import { useStrings } from '../../shared/lib/i18n';
 
@@ -41,8 +45,12 @@ const advancedItemStyles = StyleSheet.create({
 export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) => {
   const theme = useTheme();
   const strings = useStrings();
+  const { showToast } = useToast();
   const { images, targetFormat, options } = route.params;
   const scrollRef = useRef<ScrollView>(null);
+  const presets = useAppStore(state => state.presets);
+  const upsertPreset = useAppStore(state => state.upsertPreset);
+  const isPdfTarget = targetFormat === 'pdf';
 
   const [form, setForm] = useState<ConversionOptions>({
     quality: options?.quality ?? 80,
@@ -63,7 +71,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
   const [advancedHeaderY, setAdvancedHeaderY] = useState(0);
   const accordionHeight = useRef(new Animated.Value(0)).current;
   const accordionProgress = useRef(new Animated.Value(0)).current;
-  const estimateQuality = form.quality;
+  const estimateQuality = isPdfTarget ? 100 : form.quality;
 
   useEffect(() => {
     let mounted = true;
@@ -157,6 +165,39 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
     }
   };
 
+  const handleSavePreset = () => {
+    const baseName =
+      images.length === 1
+        ? `${FORMAT_META[images[0].format].label} to ${FORMAT_META[targetFormat].label}`
+        : `${FORMAT_META[targetFormat].label} ${strings.onboarding.preset}`;
+    const existingNames = new Set(presets.map(item => item.name.toLowerCase()));
+
+    let name = baseName;
+    let suffix = 2;
+    while (existingNames.has(name.toLowerCase())) {
+      name = `${baseName} ${suffix}`;
+      suffix += 1;
+    }
+
+    upsertPreset({
+      id: createId(),
+      name,
+      from: images.length === 1 ? images[0].format : undefined,
+      to: targetFormat,
+      options: {
+        ...form,
+        quality: isPdfTarget ? 100 : form.quality,
+      },
+      system: false,
+      createdAt: new Date().toISOString(),
+    });
+
+    showToast({
+      title: `${strings.onboarding.preset}: ${name}`,
+      tone: 'success',
+    });
+  };
+
   return (
     <Screen>
       <AppHeader onBack={() => navigation.goBack()} title={strings.quality.title} />
@@ -180,10 +221,12 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
           </View>
         </View>
 
-        <QualitySlider
-          onChange={quality => setForm(prev => ({ ...prev, quality }))}
-          value={form.quality}
-        />
+        {isPdfTarget ? null : (
+          <QualitySlider
+            onChange={quality => setForm(prev => ({ ...prev, quality }))}
+            value={form.quality}
+          />
+        )}
 
         <View style={[styles.estimateCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}> 
           <Text style={[theme.typography.titleSmall, { color: theme.colors.textPrimary }]}>{strings.quality.outputSizeEstimate}</Text>
@@ -268,9 +311,7 @@ export const QualitySettingsScreen: React.FC<Props> = ({ route, navigation }) =>
           <Button
             fullWidth
             label={strings.quality.saveAsPreset}
-            onPress={() => {
-              // Preset creation will be expanded in a dedicated management flow.
-            }}
+            onPress={handleSavePreset}
             variant="secondary"
           />
         </View>

@@ -120,7 +120,7 @@ export const SquozeImageConverter = {
       return Number(stat.size) * Math.max(0.45, sizeControlScale(quality) * 1.35);
     }
     if (targetFormat === 'pdf') {
-      return Number(stat.size) * Math.max(0.3, sizeControlScale(quality) * 0.95);
+      return Number(stat.size);
     }
     return Number(stat.size) * Math.max(0.2, quality / 100);
   },

@@ -294,7 +294,7 @@ class SquozeImageConverter: NSObject {
 
   private func usesQualityAsSizeControl(for format: String) -> Bool {
     switch format.lowercased() {
-    case "png", "bmp", "pdf":
+    case "png", "bmp":
       return true
     default:
       return false

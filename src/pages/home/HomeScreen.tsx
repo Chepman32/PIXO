@@ -18,7 +18,7 @@ import { Button } from '../../shared/ui/Button';
 import { ConversionHistoryCard } from '../../widgets/conversion-card/ConversionHistoryCard';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { ImagePickerSheet } from '../../widgets/image-picker/ImagePickerSheet';
-import { ImageAsset, SupportedOutputFormat } from '../../types/models';
+import { ConversionOptions, ImageAsset, SupportedOutputFormat } from '../../types/models';
 import { getQuickActionLabel, useStrings } from '../../shared/lib/i18n';
 
 export const HomeScreen: React.FC = () => {
@@ -26,15 +26,22 @@ export const HomeScreen: React.FC = () => {
   const strings = useStrings();
   const navigation = useNavigation<any>();
   const history = useAppStore(state => state.history);
+  const presets = useAppStore(state => state.presets);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [pendingPreset, setPendingPreset] = useState<{
     target?: SupportedOutputFormat;
+    options?: Partial<ConversionOptions>;
   } | null>(null);
 
   const recent = useMemo(() => history.slice(0, 5), [history]);
+  const quickActions = useMemo(
+    () => QUICK_ACTIONS.filter(action => action.type !== 'preset'),
+    [],
+  );
+  const presetItems = useMemo(() => presets.slice(0, 10), [presets]);
 
-  const openPicker = (target?: SupportedOutputFormat) => {
-    setPendingPreset({ target });
+  const openPicker = (target?: SupportedOutputFormat, options?: Partial<ConversionOptions>) => {
+    setPendingPreset({ target, options });
     setPickerVisible(true);
   };
 
@@ -42,6 +49,7 @@ export const HomeScreen: React.FC = () => {
     navigation.navigate('FormatSelection', {
       images: assets,
       initialTarget: pendingPreset?.target,
+      options: pendingPreset?.options,
     });
   };
 
@@ -70,6 +78,39 @@ export const HomeScreen: React.FC = () => {
         </Pressable>
 
         <View style={styles.sectionHeader}>
+          <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.onboarding.preset}</Text>
+        </View>
+
+        <ScrollView
+          contentContainerStyle={styles.quickActions}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {presetItems.map(preset => (
+            <Pressable
+              key={preset.id}
+              onPress={() => openPicker(preset.to, preset.options)}
+              style={({ pressed }) => [
+                styles.quickPill,
+                {
+                  backgroundColor: theme.colors.surfaceSecondary,
+                  borderColor: theme.colors.border,
+                  opacity: pressed ? 0.88 : 1,
+                },
+              ]}
+            >
+              <ArrowsLeftRight color={theme.colors.primary} size={18} />
+              <Text
+                numberOfLines={1}
+                style={[theme.typography.labelMedium, { color: theme.colors.textPrimary, maxWidth: 180 }]}
+              >
+                {preset.name}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        <View style={styles.sectionHeader}>
           <Text style={[theme.typography.titleSmall, { color: theme.colors.textSecondary }]}>{strings.home.quickActions}</Text>
         </View>
 
@@ -78,7 +119,7 @@ export const HomeScreen: React.FC = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
         >
-          {QUICK_ACTIONS.map(action => (
+          {quickActions.map(action => (
             <Pressable
               key={action.id}
               onPress={() => {
