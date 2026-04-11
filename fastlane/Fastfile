@@ -26,6 +26,8 @@ platform :ios do
 
   desc "Upload Squoze screenshots to App Store Connect"
   lane :upload_screenshots do
+    sh("../fastlane/scripts/prepare_asc_screenshots.sh")
+
     api_key = app_store_connect_api_key(
       key_id: "STDG5D3U5A",
       issuer_id: "5c3aee75-98b2-489d-b18e-c273d41d1e02",
@@ -44,7 +46,8 @@ platform :ios do
       force: true,
       overwrite_screenshots: true,
       run_precheck_before_submit: false,
-      ignore_language_directory_validation: true
+      ignore_language_directory_validation: true,
+      screenshots_path: "./fastlane/asc_screenshots"
     )
   end
 end
